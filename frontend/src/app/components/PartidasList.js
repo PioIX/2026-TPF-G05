@@ -31,7 +31,7 @@ export default function PartidasList({partidas, id_jugador}) {
 
     return(
         <>
-            {chats.length!=0? 
+            {partidas.length!=0? 
             items : 
             <p>No hay partidas</p>
             }

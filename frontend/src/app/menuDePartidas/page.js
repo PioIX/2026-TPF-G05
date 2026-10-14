@@ -10,7 +10,8 @@ import "reactjs-popup/dist/index.css";
 export default function menuDePartidasPage() {
     const searchParams = useSearchParams();
     const id_jugador = searchParams.get("id_jugador")
-  
+    const correoJugador = searchParams.get("correoJugador")
+    
 
 
     const [partidas, setPartidas] = useState([]);
@@ -26,7 +27,7 @@ export default function menuDePartidasPage() {
     useEffect(() => {
         
   
-        fetch(`http://localhost:4000/partidas?id_user=${id_user}`)
+        fetch(`http://localhost:4000/partidas?id_jugador=${id_jugador}`)
             .then(response => response.json())
             .then(data =>{ 
                 
@@ -59,13 +60,10 @@ export default function menuDePartidasPage() {
     function crearChat() {
         const chat = {
             nombre: nombre,
-            descripcion: descripcion,
-            foto: imagen,
-            correos: correos,
-            global: false
+            correos: [correoJugador, correo]
         }
 
-        fetch('http://localhost:4000/crearChat', {
+        fetch('http://localhost:4000/crearPartida', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -76,11 +74,11 @@ export default function menuDePartidasPage() {
         .then(data => {
 
             if (data.ok) {
-                setPartidas((actuales) => [...actuales, data.chat]);
+                setPartidas((actuales) => [...actuales, data.partida]);
 
                 setMostrarPopup(false);
             }else{
-                alert("Alguno de los correos no es valido")
+                alert("El correo no es valido")
 
                 setMostrarPopup(false);
 
