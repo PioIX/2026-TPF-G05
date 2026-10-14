@@ -211,16 +211,16 @@ app.post('/registrar', async function(req,res) {
 
 
 
-app.get('/chats', async function(req,res){
+app.get('/partidas', async function(req,res){
   try {
     
     let respuesta;
 
     respuesta = await realizarQuery(`
-      SELECT Chats.*
-      FROM Chats
-      INNER JOIN ChatsPorUsuarios ON Chats.id_chat = ChatsPorUsuarios.id_chat
-      WHERE ChatsPorUsuarios.id_user = ${req.query.id_user};
+      SELECT Partidas.id_partida, Partidas.nombre, Partidas.id_ganador
+      FROM Partidas 
+      INNER JOIN JugadoresPorPartida ON Partidas.id_partida = JugadoresPorPartida.id_partida
+      WHERE JugadoresPorPartida.id_jugador = ;
     `)
       
 
@@ -243,14 +243,14 @@ app.post('/crearChat', async function(req, res) {
       const element = req.body.correos[i];
       
       let existe = await realizarQuery(`
-        SELECT id_user 
+        SELECT id_jugador 
         FROM Jugadores 
         WHERE correo = "${element}"
       `);
       if(existe.length == 0){
         return  res.send({ ok: false });
       }else{
-        ids.push(existe[0].id_user)
+        ids.push(existe[0].id_jugador)
       }
 
     }
@@ -346,7 +346,3 @@ app.post('/crearMensaje', async function(req, res) {
 
 
 
-// SELECT p.id_partida, p.nombre, p.id_ganador
-// FROM Partidas p
-// INNER JOIN JugadoresPorPartida jp ON p.id_partida = jp.id_partida
-// WHERE jp.id_jugador = ?;
