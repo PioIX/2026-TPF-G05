@@ -1,6 +1,7 @@
 export default function Input({funcion, text, tipo, teclado, valor}) {
 
     const update = (event) => {
+        console.log(event)
         funcion(event.target.value)
     }
 
@@ -8,8 +9,6 @@ export default function Input({funcion, text, tipo, teclado, valor}) {
         <input
             type={tipo}
             onChange={update}
-            onKeyDown={teclado}
-            value={valor}
             placeholder={text}
         ></input>
 

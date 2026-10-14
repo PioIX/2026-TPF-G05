@@ -104,7 +104,7 @@ try {
 
     respuesta = await realizarQuery(`
       SELECT *
-      FROM Usuarios 
+      FROM Jugadores 
       WHERE id_user=${req.query.id_user}
     `)
 
@@ -112,7 +112,7 @@ try {
 
     respuesta = await realizarQuery(`
       SELECT * 
-      FROM Usuarios
+      FROM Jugadores
     `);
 
   }    
@@ -132,7 +132,7 @@ app.get('/login', async function(req,res){
 
     respuesta = await realizarQuery(`
       SELECT * 
-      FROM Usuarios 
+      FROM Jugadores 
       WHERE correo = "${req.query.correo}" AND contra="${req.query.contra}"
     `)
     console.log(respuesta)
@@ -163,7 +163,7 @@ app.post('/registrar', async function(req,res) {
 
     let existe = await realizarQuery(`
       SELECT * 
-      FROM Usuarios 
+      FROM Jugadores 
       WHERE correo = "${req.body.correo}" OR usuario = "${req.body.usuario}"
     `);
  
@@ -175,7 +175,7 @@ app.post('/registrar', async function(req,res) {
     } else{
       
       await realizarQuery(`
-      INSERT INTO Usuarios (usuario, correo, contra) 
+      INSERT INTO Jugadores (usuario, correo, contra) 
       VALUES (
         "${req.body.usuario}", 
         "${req.body.correo}", 
@@ -244,7 +244,7 @@ app.post('/crearChat', async function(req, res) {
       
       let existe = await realizarQuery(`
         SELECT id_user 
-        FROM Usuarios 
+        FROM Jugadores 
         WHERE correo = "${element}"
       `);
       if(existe.length == 0){
@@ -344,3 +344,9 @@ app.post('/crearMensaje', async function(req, res) {
   }
 });
 
+
+
+// SELECT p.id_partida, p.nombre, p.id_ganador
+// FROM Partidas p
+// INNER JOIN JugadoresPorPartida jp ON p.id_partida = jp.id_partida
+// WHERE jp.id_jugador = ?;

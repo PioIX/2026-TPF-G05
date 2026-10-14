@@ -7,7 +7,7 @@ import Boton from '../components/Boton';
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
 
-function menuDePartidasPage() {
+export default function menuDePartidasPage() {
     const searchParams = useSearchParams();
     const id_user = searchParams.get("id_user")
     const correo_user = searchParams.get("correo")
@@ -114,11 +114,7 @@ function menuDePartidasPage() {
                 
                 <Input tipo="text" funcion={setNombre} text="Nombre"></Input>          
                 <Input tipo="text" funcion={setDescripcion} text="Descripcion"></Input>          
-                <Input tipo="text" funcion={setImagen} text="Foto"></Input>          
-
-                {typeof imagen === "string" && imagen.trim() !== "" && (
-                    <img className="preview" src={imagen} alt="Vista previa del chat"></img>
-                )}
+  
                 <div>
 
                     <h3>Integrantas:</h3>
@@ -137,10 +133,3 @@ function menuDePartidasPage() {
     );
 }
 
-export default function chatsPageWrapped() {
-    return (
-        <Suspense fallback={<p style={{ textAlign: "center", marginTop: "24px" }}>Cargando...</p>}>
-            <ChatsPageInterno />
-        </Suspense>
-    );
-}

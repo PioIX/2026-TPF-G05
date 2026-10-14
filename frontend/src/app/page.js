@@ -89,13 +89,13 @@ export default function Home() {
   }
 
 
-  const fotoValida = typeof foto === "string" && foto.trim() !== "";
+
 
   return (
     <div className="container">
       <h2>Bienvenido</h2>
-      <Input tipo="text" funcion={setCorreo} valor={correo} text="Ingrese su correo"></Input>
-      <Input tipo="password" funcion={setContra} valor={contra} text="Ingrese su contraseña"></Input>
+      <Input tipo="text" funcion={setCorreo} text="Ingrese su correo"></Input>
+      <Input tipo="password" funcion={setContra} text="Ingrese su contraseña"></Input>
 
       <Boton funcion={logear} text="Iniciar sesion"></Boton>
 
@@ -110,9 +110,9 @@ export default function Home() {
 
           <div className="container">
 
-            <Input tipo="text" funcion={setUsuario} valor={usuario} text="Ingrese su usuario"></Input>
+            <Input tipo="text" funcion={setUsuario} text="Ingrese su usuario"></Input>
             
-            <Boton o={registrar} text="Registrarse"></Boton>
+            <Boton funcion={registrar} text="Registrarse"></Boton>
 
           </div>
         }
