@@ -57,8 +57,8 @@ export default function menuDePartidasPage() {
 
 
 
-    function crearChat() {
-        const chat = {
+    function crearPartida() {
+        const partida = {
             nombre: nombre,
             correos: [correoJugador, correo]
         }
@@ -68,7 +68,7 @@ export default function menuDePartidasPage() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(chat)
+            body: JSON.stringify(partida)
         })
         .then(response => response.json())
         .then(data => {
@@ -108,7 +108,7 @@ export default function menuDePartidasPage() {
                 <Input tipo="text" funcion={setCorreo} text="Correo"></Input>
 
 
-                <Boton funcion={crearChat} text="Crear"></Boton>  
+                <Boton funcion={crearPartida} text="Crear"></Boton>  
             </Popup>
         </>
     );
