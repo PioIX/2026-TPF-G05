@@ -1,7 +1,7 @@
 "use client"
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from 'react';
-import ChatList from "../components/ChatList"
+import PartidasList from "../components/PartidasList"
 import Input from "../components/Input"
 import Boton from '../components/Boton';
 import Popup from "reactjs-popup";
@@ -9,29 +9,30 @@ import "reactjs-popup/dist/index.css";
 
 export default function menuDePartidasPage() {
     const searchParams = useSearchParams();
-    const id_user = searchParams.get("id_user")
-    const correo_user = searchParams.get("correo")
+    const id_jugador = searchParams.get("id_jugador")
+    const correoJugador = searchParams.get("correoJugador")
+    
 
 
-    const [chats, setChats] = useState([]);
+    const [partidas, setPartidas] = useState([]);
 
     const [mostrarPopup, setMostrarPopup] = useState(false);
     
     const [nombre, setNombre] = useState("");
-    const [descripcion, setDescripcion] = useState("");
+
    
     const [correo, setCorreo] = useState("");
-    const [correos, setCorreos] = useState([correo_user]);
+
     
     useEffect(() => {
         
   
-        fetch(`http://localhost:4000/chats?id_user=${id_user}`)
+        fetch(`http://localhost:4000/partidas?id_jugador=${id_jugador}`)
             .then(response => response.json())
             .then(data =>{ 
                 
                 
-                setChats(data)
+                setPartidas(data)
                 console.log(data)
             })
             
@@ -43,16 +44,7 @@ export default function menuDePartidasPage() {
 
     
 
-    function renderizarCorreos() {
-        const lista = correos.map((data, indice) => (
-            <li key={indice}>
-                <p>{data}</p>
-            </li>
-        ))
-        return lista    
 
-
-    }
 
     function updateCorreos() {
         const copia = [];
@@ -65,32 +57,29 @@ export default function menuDePartidasPage() {
 
 
 
-    function crearChat() {
-        const chat = {
+    function crearPartida() {
+        const partida = {
             nombre: nombre,
-            descripcion: descripcion,
-            foto: imagen,
-            correos: correos,
-            global: false
+            correos: [correoJugador, correo]
         }
 
-        fetch('http://localhost:4000/crearChat', {
+        fetch('http://localhost:4000/crearPartida', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(chat)
+            body: JSON.stringify(partida)
         })
         .then(response => response.json())
         .then(data => {
 
             if (data.ok) {
-                setChats((chatsActuales) => [...chatsActuales, data.chat]);
-                setCorreos([correo_user])
+                setPartidas((actuales) => [...actuales, data.partida]);
+
                 setMostrarPopup(false);
             }else{
-                alert("Alguno de los correos no es valido")
-                setCorreos([correo_user])
+                alert("El correo no es valido")
+
                 setMostrarPopup(false);
 
             }
@@ -103,7 +92,7 @@ export default function menuDePartidasPage() {
     return (
         <>
             <h2 style={{ textAlign: "center", margin: "20px 0" }}>Mis chats</h2>
-            <ChatList chats={chats} id_user={id_user}></ChatList>
+            <PartidasList partidas={partidas} id_jugador={id_jugador}></PartidasList>
 
             <Boton funcion={() => setMostrarPopup(true)} text="Crear"></Boton>  
             <Popup
@@ -113,21 +102,13 @@ export default function menuDePartidasPage() {
             >
                 
                 <Input tipo="text" funcion={setNombre} text="Nombre"></Input>          
-                <Input tipo="text" funcion={setDescripcion} text="Descripcion"></Input>          
+                  
   
-                <div>
 
-                    <h3>Integrantas:</h3>
-                    <ul>
-                        {renderizarCorreos()}
-
-                    </ul>
-                </div>
                 <Input tipo="text" funcion={setCorreo} text="Correo"></Input>
 
 
-                <Boton funcion={updateCorreos} text="Añadir"></Boton>
-                <Boton funcion={crearChat} text="Crear"></Boton>  
+                <Boton funcion={crearPartida} text="Crear"></Boton>  
             </Popup>
         </>
     );

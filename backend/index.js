@@ -211,16 +211,16 @@ app.post('/registrar', async function(req,res) {
 
 
 
-app.get('/chats', async function(req,res){
+app.get('/partidas', async function(req,res){
   try {
     
     let respuesta;
 
     respuesta = await realizarQuery(`
-      SELECT Chats.*
-      FROM Chats
-      INNER JOIN ChatsPorUsuarios ON Chats.id_chat = ChatsPorUsuarios.id_chat
-      WHERE ChatsPorUsuarios.id_user = ${req.query.id_user};
+      SELECT Partidas.id_partida, Partidas.nombre, Partidas.id_ganador
+      FROM Partidas 
+      INNER JOIN JugadoresPorPartida ON Partidas.id_partida = JugadoresPorPartida.id_partida
+      WHERE JugadoresPorPartida.id_jugador = ${req.query.id_jugador};
     `)
       
 
@@ -234,7 +234,7 @@ app.get('/chats', async function(req,res){
   }
 })
 
-app.post('/crearChat', async function(req, res) {
+app.post('/crearPartida', async function(req, res) {
   try {
 
     let ids = []
@@ -243,14 +243,14 @@ app.post('/crearChat', async function(req, res) {
       const element = req.body.correos[i];
       
       let existe = await realizarQuery(`
-        SELECT id_user 
+        SELECT id_jugador 
         FROM Jugadores 
         WHERE correo = "${element}"
       `);
       if(existe.length == 0){
         return  res.send({ ok: false });
       }else{
-        ids.push(existe[0].id_user)
+        ids.push(existe[0].id_jugador)
       }
 
     }
@@ -258,34 +258,32 @@ app.post('/crearChat', async function(req, res) {
     console.log(ids)
 
     await realizarQuery(`
-      INSERT INTO Chats (nombre, descripcion, foto, global)
+      INSERT INTO Partidas (nombre)
       VALUES (
-        "${req.body.nombre}",
-        "${req.body.descripcion}",
-        "${req.body.foto}",
-        ${req.body.global}
+        "${req.body.nombre}"
+
       )
     `);
     
-    let chat = await realizarQuery(`
+    let partida = await realizarQuery(`
       SELECT * 
-      FROM Chats 
+      FROM Partidas 
       WHERE nombre = "${req.body.nombre}"
     `);
 
-    for (let id_user of ids) {
+    for (let id_jugador of ids) {
 
       await realizarQuery(`
-        INSERT INTO ChatsPorUsuarios (id_chat, id_user)
-        VALUES (${chat[0].id_chat}, ${id_user})
+        INSERT INTO JugadoresPorPartida (id_partida, id_jugador)
+        VALUES (${partida[0].id_partida}, ${id_jugador})
       `);
 
     }
-    console.log(chat[0])
+    console.log(partida[0])
     
     res.send({ 
       ok: true, 
-      chat: chat[0] });
+      partida: partida[0] });
 
   } catch (error) {
     console.log(error.message);
@@ -346,7 +344,3 @@ app.post('/crearMensaje', async function(req, res) {
 
 
 
-// SELECT p.id_partida, p.nombre, p.id_ganador
-// FROM Partidas p
-// INNER JOIN JugadoresPorPartida jp ON p.id_partida = jp.id_partida
-// WHERE jp.id_jugador = ?;
