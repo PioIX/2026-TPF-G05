@@ -35,6 +35,70 @@ function ChatPageInterno() {
     const finRef = useRef(null);
 
 
+    function tradicir(posicion, orientacion, longitud) {
+        const letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+        const fila = Number(posicion[1])
+        const letra = posicion[0].toUpperCase()
+        const columna= letras.indexOf(letra)
+        let posicionesEnLaTabla = []
+        if(letras.includes(letra) == true && fila >= 0 && fila <= 9){
+            
+
+            switch (orientacion) {
+                case "este":
+                    if (fila+longitud < 0 && fila+longitud > 9) {
+                        return false
+                    }
+
+                    for (let i = 0; i < longitud; i++) {
+                        posicionesEnLaTabla.push({y: fila + i, x: columna})
+                    }
+
+                    break;
+                case "sur":
+                    if (columna+longitud >= 0 && columna+longitud <= 9) {
+                        return false
+                    }
+                    for (let i = 0; i < longitud;i++) {
+                        posicionesEnLaTabla.push({y: fila, x: columna + i})
+                    }            
+                    break;
+                case "oeste":
+                    if (fila-longitud < 0 && fila-longitud > 9) {
+                        return false
+                    }
+
+                    for (let i = 0; i < longitud; i++) {
+                        posicionesEnLaTabla.push({y: fila - i, x: columna})
+                    }
+
+                    break;          
+  
+                case "norte":
+                    if (columna-longitud >= 0 && columna-longitud <= 9) {
+                        return false
+                    }
+                    for (let i = 0; i < longitud;i++) {
+                        posicionesEnLaTabla.push({y: fila, x: columna - i})
+                    }          
+                    break;
+                default:
+                    break;
+            }
+            if(orientacion == "es"){
+
+            }else{
+
+
+            } 
+            return posicionesEnLaTabla
+
+        }else{
+            return false
+        }
+
+    }
+
 
 
 

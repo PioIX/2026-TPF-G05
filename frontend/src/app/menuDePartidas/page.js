@@ -35,7 +35,7 @@ export default function menuDePartidasPage() {
                 setPartidas(data)
                 console.log(data)
             })
-            
+                
 
 
     }, [ ]);
