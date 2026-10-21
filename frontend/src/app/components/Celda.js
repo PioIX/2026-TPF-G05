@@ -1,17 +1,23 @@
-export default function Celda({barcos}) {
+export default function Celda({fila, columna, inicio, final, setInicio, setFinal}) {
+
+    function guardarPosicion(){
+        if(inicio=={}){
+            setInicio({fila: fila, columna: columna})
+
+        }else{
+            setFinal({fila: fila, columna: columna})
+        }
 
 
+    }
 
     return (
         <>
-            <button onClick={irAPartida} className="chat">
+            <button onClick={guardarPosicion} className="">
 
-                
-                <div className="chatPre">
-
-                </div>
             </button>
         </>
         
     )
 };
+console.log

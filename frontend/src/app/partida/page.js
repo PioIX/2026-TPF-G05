@@ -13,6 +13,8 @@ function ChatPageInterno() {
     const searchParams = useSearchParams();
     const id_jugador = searchParams.get("id_jugador")
     const id_partida = searchParams.get("id_partida")
+    const [incio, setInicio]= useState({})
+    const [final, setFinal]= useState({})
 
     
     const { socket } = useSocket();
