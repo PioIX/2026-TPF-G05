@@ -43,22 +43,53 @@ function ChatPageInterno() {
         let posicionesEnLaTabla = []
         if(letras.includes(letra) == true && fila >= 0 && fila <= 9){
             
-            if(orientacion == "vertical"){
-                if (fila+longitud < 0 && fila+longitud > 9) {
-                    return false
-                }
 
-                for (let i = 0; i < longitud; i++) {
-                    posicionesEnLaTabla.push({y: fila + i, x: columna})
-                }
+            switch (orientacion) {
+                case "este":
+                    if (fila+longitud < 0 && fila+longitud > 9) {
+                        return false
+                    }
+
+                    for (let i = 0; i < longitud; i++) {
+                        posicionesEnLaTabla.push({y: fila + i, x: columna})
+                    }
+
+                    break;
+                case "sur":
+                    if (columna+longitud >= 0 && columna+longitud <= 9) {
+                        return false
+                    }
+                    for (let i = 0; i < longitud;i++) {
+                        posicionesEnLaTabla.push({y: fila, x: columna + i})
+                    }            
+                    break;
+                case "oeste":
+                    if (fila-longitud < 0 && fila-longitud > 9) {
+                        return false
+                    }
+
+                    for (let i = 0; i < longitud; i++) {
+                        posicionesEnLaTabla.push({y: fila - i, x: columna})
+                    }
+
+                    break;          
+  
+                case "norte":
+                    if (columna-longitud >= 0 && columna-longitud <= 9) {
+                        return false
+                    }
+                    for (let i = 0; i < longitud;i++) {
+                        posicionesEnLaTabla.push({y: fila, x: columna - i})
+                    }          
+                    break;
+                default:
+                    break;
+            }
+            if(orientacion == "es"){
+
             }else{
 
-                if (columna+longitud >= 0 && columna+longitud <= 9) {
-                    return false
-                }
-                for (let i = 0; i < longitud;i++) {
-                    posicionesEnLaTabla.push({y: fila, x: columna + i})
-                }
+
             } 
             return posicionesEnLaTabla
 
