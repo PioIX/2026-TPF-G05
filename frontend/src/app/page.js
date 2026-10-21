@@ -26,7 +26,7 @@ export default function Home() {
 
       if(data.ok){
 
-        router.push(`/menuDePartidas?id_user=${data.respuesta[0].id_user}&&correo=${data.respuesta[0].correo}`)
+        router.push(`/menuDePartidas?id_jugador=${data.respuesta[0].id_jugador}&&correoJugador=${data.respuesta[0].correo}`)
 
       }else{
         alert("El usuario no existe")
