@@ -251,6 +251,13 @@ img {
   color: var(--acento);
   font-weight: 600;
 }
+.tabla {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  width: 400px;
+  height: 400px;
+}
 
 .barraEntrada {
   position: sticky;

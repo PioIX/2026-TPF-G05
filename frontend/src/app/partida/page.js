@@ -4,102 +4,77 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSocket } from "../hooks/useSocket";
 
 
-import Message from "../components/Message";
-import Input from "../components/Input"
+
 import Boton from '../components/Boton';
+import Tabla from "../components/Tabla";
 
 
-function ChatPageInterno() {
+export default function ChatPageInterno() {
     const searchParams = useSearchParams();
     const id_jugador = searchParams.get("id_jugador")
     const id_partida = searchParams.get("id_partida")
-    const [incio, setInicio]= useState({})
+    const [inicio, setInicio]= useState({})
     const [final, setFinal]= useState({})
+    const [tablero, setTablero]= useState(
+
+
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ]
+
+
+
+    )
 
     
     const { socket } = useSocket();
-    let tableroPropio=[
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-    ]
             
-    const [mensaje, setMensaje] = useState("");
-    const [mensajes, setMensajes] = useState([]);
-    const [usuario, setUsuario] = useState({});
+    
     const finRef = useRef(null);
 
-
-    function tradicir(posicion, orientacion, longitud) {
-        const letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
-        const fila = Number(posicion[1])
-        const letra = posicion[0].toUpperCase()
-        const columna= letras.indexOf(letra)
-        let posicionesEnLaTabla = []
-        if(letras.includes(letra) == true && fila >= 0 && fila <= 9){
-            
-
-            switch (orientacion) {
-                case "este":
-                    if (fila+longitud < 0 && fila+longitud > 9) {
-                        return false
-                    }
-
-                    for (let i = 0; i < longitud; i++) {
-                        posicionesEnLaTabla.push({y: fila + i, x: columna})
-                    }
-
-                    break;
-                case "sur":
-                    if (columna+longitud >= 0 && columna+longitud <= 9) {
-                        return false
-                    }
-                    for (let i = 0; i < longitud;i++) {
-                        posicionesEnLaTabla.push({y: fila, x: columna + i})
-                    }            
-                    break;
-                case "oeste":
-                    if (fila-longitud < 0 && fila-longitud > 9) {
-                        return false
-                    }
-
-                    for (let i = 0; i < longitud; i++) {
-                        posicionesEnLaTabla.push({y: fila - i, x: columna})
-                    }
-
-                    break;          
-  
-                case "norte":
-                    if (columna-longitud >= 0 && columna-longitud <= 9) {
-                        return false
-                    }
-                    for (let i = 0; i < longitud;i++) {
-                        posicionesEnLaTabla.push({y: fila, x: columna - i})
-                    }          
-                    break;
-                default:
-                    break;
-            }
-            if(orientacion == "es"){
-
-            }else{
-
-
-            } 
-            return posicionesEnLaTabla
-
-        }else{
+    function confirnar() {
+        if(inicio.fila!=final.fila && inicio.columna!=final.columna){
             return false
         }
+        if (inicio.fila!=final.fila) {
+            
+        } else {
+            
+        }
+}
+function tradicir(inicio, final, orientacion,) {
 
+    let posicionesEnLaTabla = []
+    if(letras.includes(letra) == true && fila >= 0 && fila <= 9){
+
+        if (orientacion=="vertical"){
+            // corregir
+                for (let i = inicio.columnaddddddddd; i <= final.columna; i++) {
+                    posicionesEnLaTabla.push({y: inicio.fila + i, x: inicio.columna})
+                }
+
+
+        }
+
+        return posicionesEnLaTabla
+
+    }else{
+        return false
     }
+
+}
+
+
+    
 
 
 
@@ -115,7 +90,7 @@ function ChatPageInterno() {
         
 
 
-        fetch(`http://localhost:4000/mensajes?id_chat=${id_chat}`)
+        fetch(`http://localhost:4000/mensajes?id_partida=${id_partida}`)
         .then(response => response.json())
         .then(data =>{ 
             
@@ -146,26 +121,26 @@ function ChatPageInterno() {
     return (
         <>
 
-            <div className="mensajes">
-                {renderizarMsg()}
-                <div ref={finRef}></div>
-
-            </div>
+        <div className="mensajes">
+            <Tabla
+            tablero={tablero}
+            setFinal={setFinal}
+            setInicio={setInicio}
+            final={final}
+            inicio={inicio}
+            ></Tabla>
             
-            <div className="barraEntrada">
-                <Input tipo="text" funcion={setMensaje} text="Mensaje" teclado={manejarTecla} valor={mensaje}></Input>          
-                <Boton funcion={enviar} text="Enviar"></Boton>  
-            </div>
+
+        </div>
+        
+
+            <Boton funcion={confirnar} text="Confirmar"></Boton>  
  
+
         
         </>
     );
 }
 
-export default function chatPageWrapped() {
-    return (
-        <Suspense fallback={<p style={{ textAlign: "center", marginTop: "24px" }}>Cargando...</p>}>
-            <ChatPageInterno />
-        </Suspense>
-    );
-}
+
+

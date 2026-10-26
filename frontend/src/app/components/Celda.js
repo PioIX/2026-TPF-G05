@@ -1,9 +1,9 @@
-export default function Celda({fila, columna, inicio, final, setInicio, setFinal}) {
+export default function Celda({fila, columna, inicio, final, setInicio, setFinal, estado}) {
 
     function guardarPosicion(){
         if(inicio=={}){
             setInicio({fila: fila, columna: columna})
-
+            
         }else{
             setFinal({fila: fila, columna: columna})
         }
@@ -13,11 +13,8 @@ export default function Celda({fila, columna, inicio, final, setInicio, setFinal
 
     return (
         <>
-            <button onClick={guardarPosicion} className="">
-
-            </button>
+            <button onClick={guardarPosicion} className="">{estado}</button>
         </>
         
     )
 };
-console.log
