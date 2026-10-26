@@ -13,8 +13,8 @@ export default function ChatPageInterno() {
     const searchParams = useSearchParams();
     const id_jugador = searchParams.get("id_jugador")
     const id_partida = searchParams.get("id_partida")
-    const [inicio, setInicio]= useState({})
-    const [final, setFinal]= useState({})
+    const [inicio, setInicio]= useState(undefined)
+    const [final, setFinal]= useState(undefined)
     const [tablero, setTablero]= useState(
 
 
@@ -41,35 +41,77 @@ export default function ChatPageInterno() {
     
     const finRef = useRef(null);
 
-    function confirnar() {
-        if(inicio.fila!=final.fila && inicio.columna!=final.columna){
-            return false
-        }
+    function confirmar() {
+        console.log(inicio)
+        console.log(final)
+
+
+        let posiciones =[]
+  
         if (inicio.fila!=final.fila) {
             
+            if (final.fila>inicio.fila) {
+                posiciones=dimensionar(inicio, final, "horizontal")
+                
+            } else {
+                posiciones=dimensionar(final, inicio, "horizontal")
+                
+            }
         } else {
-            
+            if (final.fila>inicio.fila) {
+                posiciones=dimensionar(inicio, final, "vertical")
+                
+            } else {
+                posiciones=dimensionar(final, inicio, "vertical")
+                            
+            }
         }
-}
-function tradicir(inicio, final, orientacion,) {
+
+      console.log(posiciones)
+      
+        // for (let i = 0; i < posiciones.length; i++) {
+        //     const posicion = posiciones[i];
+        //     if(tablero[posicion.fila][posicion.columna]!=1){
+                
+        //         let copia = tablero
+          
+        //         copia[posicion.fila][posicion.columna]=1;
+        //         setTablero(copia);
+            
+        //     }
+        // }
+        // for (const posicion of posiciones) {
+        //     if(tablero[posicion.fila][posicion.columna]!=1){
+        //         const agregarNota = (nota) => {
+        //         const copia = [];
+        //         tablero.forEach((n) => copia.push(n));
+        //         copia[posicion.fila][posicion.columna]=1;
+        //         setTablero(copia);
+        //         };
+        //     }
+        // }
+    
+    }
+function dimensionar(inicio, final, orientacion) {
 
     let posicionesEnLaTabla = []
-    if(letras.includes(letra) == true && fila >= 0 && fila <= 9){
-
-        if (orientacion=="vertical"){
-            // corregir
-                for (let i = inicio.columnaddddddddd; i <= final.columna; i++) {
-                    posicionesEnLaTabla.push({y: inicio.fila + i, x: inicio.columna})
-                }
 
 
+    if (orientacion=="vertical"){
+
+        for (let i = 0; i = final.columna-inicio.columna; i++) {
+            posicionesEnLaTabla.push({y: inicio.fila + i, x: inicio.columna})
         }
 
-        return posicionesEnLaTabla
-
+    
     }else{
-        return false
+        for (let i = 0; i = final.fila-inicio.fila; i++) {
+            posicionesEnLaTabla.push({y: inicio.fila, x: inicio.columna + i})
+        }
     }
+
+    return posicionesEnLaTabla
+
 
 }
 
@@ -134,7 +176,7 @@ function tradicir(inicio, final, orientacion,) {
         </div>
         
 
-            <Boton funcion={confirnar} text="Confirmar"></Boton>  
+            <Boton funcion={confirmar} text="Confirmar"></Boton>  
  
 
         
