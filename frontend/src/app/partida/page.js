@@ -7,6 +7,7 @@ import { useSocket } from "../hooks/useSocket";
 
 import Boton from '../components/Boton';
 import Tabla from "../components/Tabla";
+import { CONFIG_FILES } from "next/dist/shared/lib/constants";
 
 
 export default function ChatPageInterno() {
@@ -52,22 +53,21 @@ function confirmar() {
     }
 
     let posiciones = [];
-
+    console.log(inicio)
+    console.log(final)
     if (inicio.fila == final.fila) {
 
         if (final.columna > inicio.columna) {
-            posiciones = dimensionar(inicio, final, "horizontal");
-
+            posiciones = dimensionar(inicio, final.columna - inicio.columna + 1, "horizontal");
         } else {
-            posiciones = dimensionar(final, inicio, "horizontal");
+            posiciones = dimensionar(final, inicio.fila - final.fila  + 1, "horizontal");
         }
     } else if (inicio.columna == final.columna) {
-
         if (final.fila > inicio.fila) {
 
-            posiciones = dimensionar(inicio, final, "vertical");
+            posiciones = dimensionar(inicio, final.columna - inicio.columna + 1, "vertical");
         } else {
-            posiciones = dimensionar(final, inicio, "vertical");
+            posiciones = dimensionar(final, inicio.columna - final.columna  + 1, "vertical");
         }
     } else {
         setInicio(undefined)
@@ -101,15 +101,17 @@ function confirmar() {
     
 }
 
-function dimensionar(puntoA, puntoB, orientacion) {
+function dimensionar(puntoA, longitud, orientacion) {
+    console.log(longitud)
+
     const posiciones = [];
 
     if (orientacion === "horizontal") {
-        for (let i = 0; i <= puntoB.columna-puntoA.columna; i++) {
+        for (let i = 0; i < longitud ; i++) {
             posiciones.push({ fila: puntoA.fila, columna: puntoA.columna + i });
         }
     } else {
-        for (let i = 0; i <= puntoB.fila-puntoA.fila; i++) {
+        for (let i = 0; i < longitud; i++) {
             posiciones.push({ fila: puntoA.fila + i, columna: puntoA.columna });
         }
     }
@@ -139,10 +141,20 @@ function dimensionar(puntoA, puntoB, orientacion) {
             setBarcos(data)
             console.log(data)
         })
+
             
     }, []);
 
 
+    useEffect(() => {
+        
+
+
+
+        
+
+            
+    }, [barcos]);
 
     useEffect(() => {
         
