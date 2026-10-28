@@ -303,14 +303,15 @@ app.post('/crearPartida', async function(req, res) {
 
 
 
-app.get('/mensajes', async function(req, res) {
+app.get('/traerBarcos', async function(req, res) {
     try {
 
       let respuesta = await realizarQuery(`
-        SELECT Mensajes.contenido, Usuarios.foto, Usuarios.usuario, Mensajes.id_user
-        FROM Mensajes
-        INNER JOIN Usuarios ON Mensajes.id_user = Usuarios.id_user
-        WHERE Mensajes.id_chat = ${req.query.id_chat};
+        SELECT BarcosPorPartida.orientacion, BarcosPorPartida.posicion , Barcos.nombre, Barcos.longitud, Barcos.imagen
+        FROM BarcosPorPartida
+        INNER JOIN Barcos ON BarcosPorPartida.id_barco = Barcos.id_barco
+        WHERE BarcosPorPartida.id_jugador = ${req.query.id_jugador}
+        AND BarcosPorPartida.id_partida = ${req.query.id_partida}
       `);
         console.log(respuesta)
       res.send(respuesta);

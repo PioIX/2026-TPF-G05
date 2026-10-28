@@ -15,6 +15,7 @@ export default function ChatPageInterno() {
     const id_partida = searchParams.get("id_partida")
     const [inicio, setInicio]= useState(undefined)
     const [final, setFinal]= useState(undefined)
+    const [barcos, setBarcos]= useState([])
     const [tablero, setTablero]= useState(
 
 
@@ -41,81 +42,80 @@ export default function ChatPageInterno() {
     
     const finRef = useRef(null);
 
-    function confirmar() {
-        console.log(inicio)
-        console.log(final)
+function confirmar() {
+    if (!inicio || !final) {
+        setInicio(undefined)
+        setFinal(undefined)
+        alert("posicion no es valida")
+        return 
 
+    }
 
-        let posiciones =[]
-  
-        if (inicio.fila!=final.fila) {
-            
-            if (final.fila>inicio.fila) {
-                posiciones=dimensionar(inicio, final, "horizontal")
-                
-            } else {
-                posiciones=dimensionar(final, inicio, "horizontal")
-                
-            }
+    let posiciones = [];
+
+    if (inicio.fila == final.fila) {
+
+        if (final.columna > inicio.columna) {
+            posiciones = dimensionar(inicio, final, "horizontal");
+
         } else {
-            if (final.fila>inicio.fila) {
-                posiciones=dimensionar(inicio, final, "vertical")
-                
-            } else {
-                posiciones=dimensionar(final, inicio, "vertical")
-                            
-            }
+            posiciones = dimensionar(final, inicio, "horizontal");
         }
+    } else if (inicio.columna == final.columna) {
 
-      console.log(posiciones)
-      
-        // for (let i = 0; i < posiciones.length; i++) {
-        //     const posicion = posiciones[i];
-        //     if(tablero[posicion.fila][posicion.columna]!=1){
-                
-        //         let copia = tablero
-          
-        //         copia[posicion.fila][posicion.columna]=1;
-        //         setTablero(copia);
-            
-        //     }
-        // }
-        // for (const posicion of posiciones) {
-        //     if(tablero[posicion.fila][posicion.columna]!=1){
-        //         const agregarNota = (nota) => {
-        //         const copia = [];
-        //         tablero.forEach((n) => copia.push(n));
-        //         copia[posicion.fila][posicion.columna]=1;
-        //         setTablero(copia);
-        //         };
-        //     }
-        // }
-    
-    }
-function dimensionar(inicio, final, orientacion) {
+        if (final.fila > inicio.fila) {
 
-    let posicionesEnLaTabla = []
-
-
-    if (orientacion=="vertical"){
-
-        for (let i = 0; i = final.columna-inicio.columna; i++) {
-            posicionesEnLaTabla.push({y: inicio.fila + i, x: inicio.columna})
+            posiciones = dimensionar(inicio, final, "vertical");
+        } else {
+            posiciones = dimensionar(final, inicio, "vertical");
         }
-
-    
-    }else{
-        for (let i = 0; i = final.fila-inicio.fila; i++) {
-            posicionesEnLaTabla.push({y: inicio.fila, x: inicio.columna + i})
-        }
+    } else {
+        setInicio(undefined)
+        setFinal(undefined)
+        alert("posicion no es valida")
+        return 
     }
 
-    return posicionesEnLaTabla
+    console.log(posiciones);
+    let copia = [];
 
+    
+    tablero.forEach((c) => copia.push(c));
+    
+    for (const posicion of posiciones) {
+        if(tablero[posicion.fila][posicion.columna]==1){    
+            setInicio(undefined)
+            setFinal(undefined)
+            alert("posicion no es valida")
+            return
+        }    
+    }
+    
+    for (const posicion of posiciones) {
+        copia[posicion.fila][posicion.columna]=1;
+        
+    }
 
+    setInicio(undefined)
+    setFinal(undefined)
+    
 }
 
+function dimensionar(puntoA, puntoB, orientacion) {
+    const posiciones = [];
 
+    if (orientacion === "horizontal") {
+        for (let i = 0; i <= puntoB.columna-puntoA.columna; i++) {
+            posiciones.push({ fila: puntoA.fila, columna: puntoA.columna + i });
+        }
+    } else {
+        for (let i = 0; i <= puntoB.fila-puntoA.fila; i++) {
+            posiciones.push({ fila: puntoA.fila + i, columna: puntoA.columna });
+        }
+    }
+
+    return posiciones;
+}
     
 
 
@@ -132,11 +132,11 @@ function dimensionar(inicio, final, orientacion) {
         
 
 
-        fetch(`http://localhost:4000/mensajes?id_partida=${id_partida}`)
+        fetch(`http://localhost:4000/traerBarcos?id_partida=${id_partida}&&id_jugador=${id_jugador}`)
         .then(response => response.json())
         .then(data =>{ 
             
-            setMensajes(data)
+            setBarcos(data)
             console.log(data)
         })
             
