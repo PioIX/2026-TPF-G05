@@ -307,7 +307,7 @@ app.get('/traerBarcos', async function(req, res) {
     try {
 
       let respuesta = await realizarQuery(`
-        SELECT BarcosPorPartida.orientacion, BarcosPorPartida.posicion , Barcos.nombre, Barcos.longitud, Barcos.imagen
+        SELECT BarcosPorPartida.orientacion, BarcosPorPartida.posicion, Barcos.nombre, Barcos.longitud, Barcos.imagen
         FROM BarcosPorPartida
         INNER JOIN Barcos ON BarcosPorPartida.id_barco = Barcos.id_barco
         WHERE BarcosPorPartida.id_jugador = ${req.query.id_jugador}

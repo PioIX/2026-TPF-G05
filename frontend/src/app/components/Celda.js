@@ -3,12 +3,12 @@ export default function Celda({fila, columna, inicio, final, setInicio, setFinal
     function guardarPosicion(){
         if(!inicio){
             setInicio({fila: fila, columna: columna})
-            console.log("inicio guardao")
+            console.log("inicio guardado")
 
             
         }else{
             setFinal({fila: fila, columna: columna})
-            console.log("final guardao")
+            console.log("final guardado")
         }
 
         
