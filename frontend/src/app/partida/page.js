@@ -17,11 +17,11 @@ export default function ChatPageInterno() {
     const [inicio, setInicio]= useState(undefined)
     const [final, setFinal]= useState(undefined)
     const [barcos, setBarcos]= useState([])
-    let portaavionesCont=0
-    let acorazadoCont=0
-    let destructorCont=0
-    let submarinoCont=0
-    let lanchaCont=0
+    let portaaviones=false
+    let acorazado=false
+    let destructor=false
+    let submarino=false
+    let lancha=false
     const [tablero, setTablero]= useState(
 
 
@@ -103,6 +103,32 @@ function confirmar() {
 
     setInicio(undefined)
     setFinal(undefined)
+
+
+    if (posiciones.length<=5 &&posiciones.length>=2) {
+        switch (posiciones.length) {
+            case 2:
+                lancha=true
+                break;
+            case 3:
+                if(destructor){
+                    submarino=true
+                }else{
+                    destructor=true
+                }
+                break;
+            case 4:
+                acorazado=
+                break;
+            case 5:
+                
+                break;
+            default:
+                break;
+        }
+        
+
+    }
     
 }
 
@@ -157,19 +183,19 @@ function dimensionar(puntoA, longitud, orientacion) {
             
             switch (barco.nombre) {
                 case "Portaaviones":
-                    portaavionesCont=portaavionesCont+1
+                    portaaviones=true
                     break;
                 case "Acorazado":
-                    acorazadoCont=acorazadoCont+1
+                    acorazado=true
                     break;
                 case "Destructor":
-                    destructorCont=destructorCont+1
+                    destructor=true
                     break;
                 case "Submarino":
-                    submarinoCont=submarinoCont+1
+                    submarino=true
                     break;
                 case "Lancha":
-                    lanchaCont=lanchaCont+1
+                    lancha=true
                     break;
                 default:
                     break;
@@ -177,7 +203,7 @@ function dimensionar(puntoA, longitud, orientacion) {
         }
         
         for (const barco of barcos) {
-            const posiciones =dimensionar(traducir(barco.posicion), barco.longitud, barco.orientacion)
+            const posiciones =dimensionar(pasarANum(barco.posicion), barco.longitud, barco.orientacion)
             let copia=[]
             console.log("posiciones",posiciones)
             
@@ -202,7 +228,7 @@ function dimensionar(puntoA, longitud, orientacion) {
     }, [barcos]);
 
     
-    function traducir(posicion) {
+    function pasarANum(posicion) {
         const letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
         const fila = Number(posicion[1])-1
         const letra = posicion[0].toUpperCase()
@@ -211,6 +237,13 @@ function dimensionar(puntoA, longitud, orientacion) {
         console.log({fila: fila, columna: columna})
         return {fila: fila, columna: columna}
     }
+    function pasarALetra(posicion) {
+        const letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+        const fila = letras[posicion.fila]
+        return `${fila}${columna+1}`
+    }
+
+
     
 
     useEffect(() => {
