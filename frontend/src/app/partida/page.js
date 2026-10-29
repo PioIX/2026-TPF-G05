@@ -179,13 +179,19 @@ function dimensionar(puntoA, longitud, orientacion) {
         for (const barco of barcos) {
             const posiciones =dimensionar(traducir(barco.posicion), barco.longitud, barco.orientacion)
             let copia=[]
+            console.log("posiciones",posiciones)
             
             tablero.forEach((c) => copia.push(c));
     
-
+            console.log("=====================");
+            
             
             for (const posicion of posiciones) {
-                copia[posicion.fila][posicion.columna]=1;
+
+
+
+                console.log(posicion)
+                copia[posicion.fila][posicion.columna] = 1;
                 
             }
             setTablero(copia)
@@ -198,9 +204,11 @@ function dimensionar(puntoA, longitud, orientacion) {
     
     function traducir(posicion) {
         const letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
-        const fila = Number(posicion[1])
+        const fila = Number(posicion[1])-1
         const letra = posicion[0].toUpperCase()
         const columna= letras.indexOf(letra)
+        console.log(fila)
+        console.log({fila: fila, columna: columna})
         return {fila: fila, columna: columna}
     }
     
