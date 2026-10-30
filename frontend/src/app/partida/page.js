@@ -11,17 +11,24 @@ import { CONFIG_FILES } from "next/dist/shared/lib/constants";
 
 
 export default function ChatPageInterno() {
+
+    const { socket } = useSocket();
     const searchParams = useSearchParams();
     const id_jugador = searchParams.get("id_jugador")
     const id_partida = searchParams.get("id_partida")
     const [inicio, setInicio]= useState(undefined)
     const [final, setFinal]= useState(undefined)
     const [barcos, setBarcos]= useState([])
+    const [barcoSec, setBarcoSec]= useState(undefined)
+
+    
+
     let portaaviones=false
     let acorazado=false
     let destructor=false
     let submarino=false
     let lancha=false
+
     const [tablero, setTablero]= useState(
 
 
@@ -43,128 +50,25 @@ export default function ChatPageInterno() {
     )
 
     
-    const { socket } = useSocket();
+
             
     
     const finRef = useRef(null);
 
-function confirmar() {
-    if (!inicio || !final) {
-        setInicio(undefined)
-        setFinal(undefined)
-        alert("posicion no es valida")
-        return 
-
-    }
-
-    let posiciones = [];
-    console.log(inicio)
-    console.log(final)
-    if (inicio.fila == final.fila) {
-
-        if (final.columna > inicio.columna) {
-            posiciones = dimensionar(inicio, final.columna - inicio.columna + 1, "horizontal");
-        } else {
-            posiciones = dimensionar(final, inicio.columna - final.columna  + 1, "horizontal");
-        }
-    } else if (inicio.columna == final.columna) {
-        if (final.fila > inicio.fila) {
-
-            posiciones = dimensionar(inicio, final.fila - inicio.fila + 1, "vertical");
-        } else {
-            posiciones = dimensionar(final, inicio.fila - final.fila  + 1, "vertical");npm 
-        }
-    } else {
-        setInicio(undefined)
-        setFinal(undefined)
-        alert("posicion no es valida")
-        return 
-    }
-
-    console.log(posiciones);
-    let copia = [];
-
-    
-    tablero.forEach((c) => copia.push(c));
-    
-    for (const posicion of posiciones) {
-        if(tablero[posicion.fila][posicion.columna]==1){    
-            setInicio(undefined)
-            setFinal(undefined)
-            alert("posicion no es valida")
-            return
-        }    
-    }
-    
-    for (const posicion of posiciones) {
-        copia[posicion.fila][posicion.columna]=1;
+    useEffect(() => {
         
-    }
+        if(socket){
 
-    setInicio(undefined)
-    setFinal(undefined)
+            socket.emit("joinRoom", { room: id_partida })
 
 
-    if (posiciones.length<=5 &&posiciones.length>=2) {
-        switch (posiciones.length) {
-            case 2:
-                lancha=true
-                break;
-            case 3:
-                if(destructor){
-                    submarino=true
-                }else{
-                    destructor=true
-                }
-                break;
-            case 4:
-                acorazado=
-                break;
-            case 5:
-                
-                break;
-            default:
-                break;
         }
-        
 
-    }
-    
-}
-
-function dimensionar(puntoA, longitud, orientacion) {
-    console.log(longitud)
-
-    const posiciones = [];
-
-    if (orientacion === "horizontal") {
-        for (let i = 0; i < longitud ; i++) {
-            posiciones.push({ fila: puntoA.fila, columna: puntoA.columna + i });
-        }
-    } else {
-        for (let i = 0; i < longitud; i++) {
-            posiciones.push({ fila: puntoA.fila + i, columna: puntoA.columna });
-        }
-    }
-
-    return posiciones;
-}
-    
-
-
-
-
-
-
-
-
-
+    }, [socket]);
 
     useEffect(() => {
         
-        
-
-
+    
         fetch(`http://localhost:4000/traerBarcos?id_partida=${id_partida}&&id_jugador=${id_jugador}`)
         .then(response => response.json())
         .then(data =>{ 
@@ -227,6 +131,172 @@ function dimensionar(puntoA, longitud, orientacion) {
 
     }, [barcos]);
 
+
+
+    function confirmar() {
+        if (!inicio || !final) {
+            setInicio(undefined)
+            setFinal(undefined)
+            alert("posicion no es valida")
+            return 
+
+        }
+
+        let posiciones = [];
+        console.log(inicio)
+        console.log(final)
+        let coordenadas
+        let orientacion
+
+        if (inicio.fila == final.fila) {
+            orientacion="horizontal"
+            if (final.columna > inicio.columna) {
+                posiciones = dimensionar(inicio, final.columna - inicio.columna + 1, "horizontal");
+                coordenadas=pasarALetra(inicio)
+            } else {
+                posiciones = dimensionar(final, inicio.columna - final.columna  + 1, "horizontal");
+                coordenadas=pasarALetra(final)
+                
+
+            }
+        } else if (inicio.columna == final.columna) {
+
+            orientacion="vertical"
+            if (final.fila > inicio.fila) {
+
+                posiciones = dimensionar(inicio, final.fila - inicio.fila + 1, "vertical");
+                coordenadas=pasarALetra(inicio)
+            } else {
+
+                posiciones = dimensionar(final, inicio.fila - final.fila  + 1, "vertical");
+                coordenadas=pasarALetra(final)
+            }
+        } else {
+            setInicio(undefined)
+            setFinal(undefined)
+            alert("posicion no es valida")
+            return 
+        }
+
+        console.log(posiciones);
+        let copia = [];
+
+        
+        tablero.forEach((c) => copia.push(c));
+        
+        for (const posicion of posiciones) {
+            if(tablero[posicion.fila][posicion.columna]==1){    
+                setInicio(undefined)
+                setFinal(undefined)
+                alert("posicion no es valida")
+                return
+            }    
+        }
+
+        switch (posiciones.length) {
+            case 2:
+                if (lancha) {
+                    setInicio(undefined)
+                    setFinal(undefined)
+                    alert("posicion no es valida")
+                    return
+                }
+                break;
+            case 3:
+                if(destructor && submarino){
+                
+                    setInicio(undefined)
+                    setFinal(undefined)
+                    alert("posicion no es valida")
+                    return
+                    
+                }
+                break;
+            case 4:
+                if (acorazado) {
+                    setInicio(undefined)
+                    setFinal(undefined)
+                    alert("posicion no es valida")
+                    return
+                }
+                break;
+            case 5:
+                if (portaaviones) {
+                    setInicio(undefined)
+                    setFinal(undefined)
+                    alert("posicion no es valida")
+                    return
+                }
+                
+                break;
+            default:
+                setInicio(undefined)
+                setFinal(undefined)
+                alert("posicion no es valida")
+                return
+                
+            
+            
+        
+        }
+        for (const posicion of posiciones) {
+            copia[posicion.fila][posicion.columna]=1;
+            
+        }
+        
+        setInicio(undefined)
+        setFinal(undefined)
+        
+        let idBarco
+        
+        switch (posiciones.length) {
+            case 2:
+                lancha=true
+                idBarco=5
+                break;
+            case 3:
+                if(destructor){
+                    submarino=true
+                    idBarco=4
+                }else{
+                    destructor=true
+                    idBarco=3
+                }
+                break;
+            case 4:
+                acorazado=true
+                idBarco=2
+                break;
+            case 5:
+                portaaviones=true
+                idBarco=1
+                break;
+            default:
+                break;
+        }
+            
+        
+        subirBarco(coordenadas, orientacion, idBarco)
+    }
+
+
+    function dimensionar(puntoA, longitud, orientacion) {
+        console.log(longitud)
+        
+        const posiciones = [];
+
+        if (orientacion === "horizontal") {
+            for (let i = 0; i < longitud ; i++) {
+                posiciones.push({ fila: puntoA.fila, columna: puntoA.columna + i });
+            }
+        } else {
+            for (let i = 0; i < longitud; i++) {
+                posiciones.push({ fila: puntoA.fila + i, columna: puntoA.columna });
+            }
+        }
+
+        return posiciones;
+    }    
     
     function pasarANum(posicion) {
         const letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
@@ -241,21 +311,28 @@ function dimensionar(puntoA, longitud, orientacion) {
         const letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
         const fila = letras[posicion.fila]
         return `${fila}${columna+1}`
-    }
+    }    
+    
+    function subirBarco(coordenadas, orientacion, idBarco) {
+        const={
+            posicion=coordenadas,
+            orientacion=orientacion,
+            id_barco:idBarco,
+            id_jugador: id_jugador
+
+        }
+    }    
+
+
+
+
+
+
+
 
 
     
-
-    useEffect(() => {
-        
-        if(socket){
-
-            socket.emit("joinRoom", { room: id_partida })
-
-
-        }
-
-    }, [socket]);
+    
 
 
 
