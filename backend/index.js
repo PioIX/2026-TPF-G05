@@ -307,7 +307,7 @@ app.get('/traerBarcos', async function(req, res) {
     try {
 
       let respuesta = await realizarQuery(`
-        SELECT BarcosPorPartida.orientacion, BarcosPorPartida.posicion, Barcos.nombre, Barcos.longitud, Barcos.imagen
+        SELECT BarcosPorPartida.orientacion, BarcosPorPartida.posicion, Barcos.longitud, Barcos.id_barco
         FROM BarcosPorPartida
         INNER JOIN Barcos ON BarcosPorPartida.id_barco = Barcos.id_barco
         WHERE BarcosPorPartida.id_jugador = ${req.query.id_jugador}
@@ -322,15 +322,17 @@ app.get('/traerBarcos', async function(req, res) {
 });
 
 
-app.post('/crearMensaje', async function(req, res) {
+app.post('/subirBarco', async function(req, res) {
   try {
-
+    console.log(req.body)
     await realizarQuery(`
-      INSERT INTO Mensajes (contenido, id_chat, id_user)
+      INSERT INTO BarcosPorPartida (posicion, orientacion, id_jugador, id_barco, id_partida)
       VALUES (
-        "${req.body.contenido}",
-        "${req.body.id_chat}",
-        "${req.body.id_user}"
+        "${req.body.posicion}",
+        "${req.body.orientacion}",
+        ${req.body.id_jugador},
+        ${req.body.id_barco},
+        ${req.body.id_partida}
       )
     `);
 
