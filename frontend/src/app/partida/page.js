@@ -50,6 +50,14 @@ export default function ChatPageInterno() {
         }
     }, [socket]);
 
+
+    useEffect(() => {
+        if (final) {
+            
+            validarBarco()
+        }
+    }, [final]);
+
     useEffect(() => {
         
     
@@ -79,11 +87,13 @@ export default function ChatPageInterno() {
             
     }, []);
 
+    function confirmar(){
+        alert("drogaaaa")
+    }
 
 
 
-
-    function confirmar() {
+    function validarBarco() {
         // verifica que los puntos no esten vacios
         if (!inicio || !final) { 
             setInicio(undefined)
@@ -195,7 +205,7 @@ export default function ChatPageInterno() {
             case 2:
                 idBarco=5
                 break;
-            case 3:
+            case 3: // cass especial 
                 if(barcos.some(barco => barco.id_barco == 3)){// verifica cual es que ya esta y añade el otro
                     idBarco=4
                 }else{
@@ -260,7 +270,7 @@ export default function ChatPageInterno() {
     function pasarALetra(posicion) {
         const letras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
         const columna = letras[posicion.columna]
-        return `${columna}${posicion.fila+1}`
+        return `${columna}${posicion.fila+1}` // "A1"
     }    
     
     function subirBarco(barco) {
@@ -314,8 +324,8 @@ export default function ChatPageInterno() {
         </div>
         
 
-            <Boton funcion={confirmar} text="Confirmar"></Boton>  
- 
+            <Boton funcion={confirmar} text="Confirmar" deshabilitar={barcos.length<5}></Boton>   
+
 
         
         </>

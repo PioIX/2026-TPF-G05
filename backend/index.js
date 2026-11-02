@@ -54,10 +54,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("pingAll", (data) => {
-    console.log("PING ALL: ", data);
-    io.emit("pingAll", { event: "Ping to all", message: data });
-  });
+
 
   socket.on("sendMessage", (data) => {
     console("SALA: ", data)
@@ -67,9 +64,13 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("eventoPersonalizado", () => {
-    contador++;
-    socket.emit("respuestaPersonalizada", { contador });
+
+  socket.on("listo", (data) => {
+    console("SALA: ", data)
+    io.to(req.session.room).emit("contrincanteListo", {
+      room: req.session.room,
+      message: data,
+    });
   });
 
   socket.on("disconnect", () => {
