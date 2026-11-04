@@ -1,4 +1,4 @@
-export default function Celda({fila, columna, inicio, final, setInicio, setFinal, estado}) {
+export default function CeldaPropia({fila, columna, inicio, final, setInicio, setFinal, estado}) {
 
     function guardarPosicion(){
         if(!inicio){

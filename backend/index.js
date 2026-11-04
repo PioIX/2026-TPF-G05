@@ -347,4 +347,19 @@ app.post('/subirBarco', async function(req, res) {
 });
 
 
+app.post('/subirAtaque', async function(req, res) {
+  try {
+    await realizarQuery(`
+      INSERT INTO Ataques (posicion, id_jugador, id_partida)
+      VALUES (
+        "${req.body.posicion}", 
+        ${req.body.id_jugador}, 
+        ${req.body.id_partida}
+      )
+    `);
 
+  } catch (error) {
+    console.log(error.message);
+
+  }
+});

@@ -1,6 +1,6 @@
-import Celda from "./Celda"
+import CeldaPropia from "./CeldaPropia"
 
-export default function Tabla({tablero, setFinal, setInicio, final, inicio}) {
+export default function TablaPropio({tablero, setFinal, setInicio, final, inicio}) {
 
     function renderizarCeldas(){
         let celdas= []
@@ -9,7 +9,7 @@ export default function Tabla({tablero, setFinal, setInicio, final, inicio}) {
             for (let x = 0; x < 10; x++) {
                 i++
                 celdas.push(
-                <Celda
+                <CeldaPropia
                 key={i}
                 fila={y}
                 columna={x}
@@ -18,7 +18,7 @@ export default function Tabla({tablero, setFinal, setInicio, final, inicio}) {
                 setInicio={setInicio}
                 setFinal={setFinal}
                 estado={tablero[y][x]}
-                ></Celda>)
+                ></CeldaPropia>)
                 
             }
             

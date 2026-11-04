@@ -6,7 +6,8 @@ import { useSocket } from "../hooks/useSocket";
 
 
 import Boton from '../components/Boton';
-import Tabla from "../components/Tabla";
+import TablaPropio from "../components/TablaPropio";
+import TablaDeAtaque from "../components/TablaDeAtaque";
 import { CONFIG_FILES } from "next/dist/shared/lib/constants";
 
 
@@ -19,6 +20,9 @@ export default function ChatPageInterno() {
     const [inicio, setInicio]= useState(undefined)
     const [final, setFinal]= useState(undefined)
     const [barcos, setBarcos]= useState([])
+    const [turno, setTurno]= useState(false)
+    const [posicionAtaque, setPosicionAtaque]= useState(undefined)
+
 
 
 
@@ -38,6 +42,20 @@ export default function ChatPageInterno() {
     )
 
     
+    const [tableroAtaques, setTableroAtaques]= useState(
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        ]
+    )
 
             
     
@@ -65,8 +83,9 @@ export default function ChatPageInterno() {
         .then(response => response.json())
         .then(data =>{ 
 
-            let copia=[]
-            tablero.forEach((c) => copia.push(c));            
+        
+                      
+            const copia = tablero.map((fila) => [...fila]);
 
             for (const barco of data) {
                 const posiciones =dimensionar(pasarANum(barco.posicion), barco.longitud, barco.orientacion)
@@ -147,8 +166,7 @@ export default function ChatPageInterno() {
         console.log(posiciones);
         
         
-        let copia = [];
-        tablero.forEach((c) => copia.push(c));
+    const copia = tablero.map((fila) => [...fila]);
     
 
         let existe=barcos.some(barco => barco.longitud == posiciones.length) // si hay algun barco de la misma longitud existe sera TRUE 
@@ -227,7 +245,8 @@ export default function ChatPageInterno() {
         barcos.forEach((c) => copiaBarcos.push(c));
         copiaBarcos.push({
             orientacion: orientacion,
-            posicion: coordenadas, 
+            posicion: coordenadas,
+            longitud: posiciones.length, 
             id_barco: idBarco 
         })
         setBarcos(copiaBarcos)
@@ -310,19 +329,34 @@ export default function ChatPageInterno() {
 
     return (
         <>
-
-        <div className="mensajes">
-            <Tabla
-            tablero={tablero}
-            setFinal={setFinal}
-            setInicio={setInicio}
-            final={final}
-            inicio={inicio}
-            ></Tabla>
+            {turno ? 
             
+                <div className="mensajes">
+                    <TablaPropio
+                    tablero={tablero}
+                    setFinal={setFinal}
+                    setInicio={setInicio}
+                    final={final}
+                    inicio={inicio}
+                    ></TablaPropio>
+                    
 
-        </div>
-        
+                </div>
+            
+            
+            
+            
+            :
+            <TablaDeAtaque
+            
+            tablero={tableroAtaques}
+            setPosicionAtaque={setPosicionAtaque}
+            
+            ></TablaDeAtaque>
+
+
+            }
+
 
             <Boton funcion={confirmar} text="Confirmar" deshabilitar={barcos.length<5}></Boton>   
 
