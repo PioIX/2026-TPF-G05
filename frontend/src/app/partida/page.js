@@ -21,7 +21,12 @@ export default function ChatPageInterno() {
     const [final, setFinal]= useState(undefined)
     const [barcos, setBarcos]= useState([])
     const [turno, setTurno]= useState(false)
+    const [misAtaques, setMisAtaques]= useState([])
+    const [ataquesRival, setAtaquesRival]= useState([])
+
+
     const [posicionAtaque, setPosicionAtaque]= useState(undefined)
+    const [preparado, setPreparado]= useState(undefined)
 
 
 
@@ -65,8 +70,45 @@ export default function ChatPageInterno() {
         
         if(socket){
             socket.emit("joinRoom", { room: id_partida })
+
+            socket.on("listo", (data) => {
+                if (data.id != id_jugador) {
+                            
+                    fetch(`http://localhost:4000/traerAtaques?id_partida=${id_partida}&&id_jugador=${data.id}`)
+                        .then(response => response.json())
+                        .then(ataques => {
+                            setAtaquesRival(ataques)
+
+                            const copia = tablero.map((fila) => [...fila]);
+
+                            for (const ataque of ataques) {
+                                posicion=pasarANum(ataque.posicion)
+                                if (tableroAtaques[posicion.fila][posicion.columna]=1 && ataque.acierto==1) {
+                                    tableroAtaques[posicion.fila][posicion.columna]=2
+                                    
+                                }
+
+                                
+                            }
+                                (copia)
+                        })
+
+                    
+
+                }
+            });
+
         }
     }, [socket]);
+
+
+    useEffect(() => {
+        
+        if(barcos.length==5){
+            setPreparado(true)
+            socket.emit("listo", { id: id_jugador })
+        }
+    }, [barcos]);
 
 
     useEffect(() => {
@@ -107,7 +149,7 @@ export default function ChatPageInterno() {
     }, []);
 
     function confirmar(){
-        alert("drogaaaa")
+
     }
 
 
@@ -166,7 +208,7 @@ export default function ChatPageInterno() {
         console.log(posiciones);
         
         
-    const copia = tablero.map((fila) => [...fila]);
+        const copia = tablero.map((fila) => [...fila]);
     
 
         let existe=barcos.some(barco => barco.longitud == posiciones.length) // si hay algun barco de la misma longitud existe sera TRUE 

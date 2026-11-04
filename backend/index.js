@@ -56,22 +56,24 @@ io.on("connection", (socket) => {
 
 
 
-  socket.on("sendMessage", (data) => {
-    console("SALA: ", data)
-    io.to(req.session.room).emit("newMessage", {
-      room: req.session.room,
-      message: data,
-    });
-  });
+
 
 
   socket.on("listo", (data) => {
-    console("SALA: ", data)
-    io.to(req.session.room).emit("contrincanteListo", {
-      room: req.session.room,
-      message: data,
-    });
+    io.to(req.session.room).emit("listo", data);
   });
+  socket.on("ataque", (data) => {
+    io.to(req.session.room).emit("ataque", data);
+  });
+
+  socket.on("ataqueRta", (data) => {
+    io.to(req.session.room).emit("ataqueRta", data);
+  });
+
+  socket.on("cambioDeTurno", (data) => {
+    io.to(req.session.room).emit("cambioDeTurno", data);
+  });
+
 
   socket.on("disconnect", () => {
     console.log("Disconnect");
@@ -347,6 +349,22 @@ app.post('/subirBarco', async function(req, res) {
 });
 
 
+app.get('/traerAtaques', async function(req, res) {
+    try {
+
+      let respuesta = await realizarQuery(`
+        SELECT *
+        FROM Ataques
+        WHERE id_jugador = ${req.query.id_jugador} AND id_partida = ${req.query.id_partida}
+      `);
+        console.log(respuesta)
+      res.send(respuesta);
+
+    } catch (error) {
+        console.log(error.message);
+    }
+});
+
 app.post('/subirAtaque', async function(req, res) {
   try {
     await realizarQuery(`
@@ -363,3 +381,5 @@ app.post('/subirAtaque', async function(req, res) {
 
   }
 });
+
+
