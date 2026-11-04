@@ -20,7 +20,7 @@ export default function ChatPageInterno() {
     const [inicio, setInicio]= useState(undefined)
     const [final, setFinal]= useState(undefined)
     const [barcos, setBarcos]= useState([])
-    const [turno, setTurno]= useState(false)
+    const [turno, setTurno]= useState(true)
     const [misAtaques, setMisAtaques]= useState([])
     const [ataquesRival, setAtaquesRival]= useState([])
 
@@ -90,14 +90,45 @@ export default function ChatPageInterno() {
 
                                 
                             }
-                                (copia)
+                                setTablero(copia)
                         })
 
                     
 
+                    
+
                 }
+
             });
 
+            socket.on("ataqueRta", (data) => {
+                if (data.id!=id_jugador) {
+                    if(data.acierto){
+                        alert("FUEGO")
+                    }else{
+                        setTurno(false)
+                        
+                        socket.emit("cambioDeTurno", { id: id_jugador })
+                    }
+
+                }
+                
+            })
+            socket.on("cambioDeTurno", (data) => {
+                if (data.id!=id_jugador) {
+                    setTurno(true)
+                }
+            })
+            socket.on("ataque", (data) => {
+                if (data.id!=id_jugador) {
+                    if (tablero[data.posicion.fila][data.posicion.columna]= 1 ){
+                        socket.emit("ataqueRta", { id: id_jugador, acierto: true })
+                    }else{
+                        socket.emit("ataqueRta", { id: id_jugador, acierto: false })
+
+                    }
+                }
+            })
         }
     }, [socket]);
 
@@ -149,7 +180,7 @@ export default function ChatPageInterno() {
     }, []);
 
     function confirmar(){
-
+        socket.emit("ataque", { id:id_jugador, posicion: posicionAtaque })
     }
 
 
@@ -292,7 +323,7 @@ export default function ChatPageInterno() {
             id_barco: idBarco 
         })
         setBarcos(copiaBarcos)
-        
+        setTablero(copia)
         subirBarco({
             orientacion: orientacion,
             posicion: coordenadas, 
@@ -371,33 +402,38 @@ export default function ChatPageInterno() {
 
     return (
         <>
-            {turno ? 
-            
-                <div className="mensajes">
-                    <TablaPropio
-                    tablero={tablero}
-                    setFinal={setFinal}
-                    setInicio={setInicio}
-                    final={final}
-                    inicio={inicio}
-                    ></TablaPropio>
+
+                {turno ? 
+                
+                    <div className="mensajes">
+                        <TablaPropio
+                        tablero={tablero}
+                        setFinal={setFinal}
+                        setInicio={setInicio}
+                        final={final}
+                        inicio={inicio}
+                        ></TablaPropio>
+                        
+
+                    </div>
+                
+                
+                
+                
+                :
+                    <div className="mensajes">
                     
+                        <TablaDeAtaque
+                        
+                        tablero={tableroAtaques}
+                        setPosicionAtaque={setPosicionAtaque}
+                        
+                        ></TablaDeAtaque>
 
-                </div>
-            
-            
-            
-            
-            :
-            <TablaDeAtaque
-            
-            tablero={tableroAtaques}
-            setPosicionAtaque={setPosicionAtaque}
-            
-            ></TablaDeAtaque>
+                    </div>
 
+                }
 
-            }
 
 
             <Boton funcion={confirmar} text="Confirmar" deshabilitar={barcos.length<5}></Boton>   
