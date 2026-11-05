@@ -73,7 +73,13 @@ export default function ChatPageInterno() {
 
             socket.on("listo", (data) => {
                 if (data.id != id_jugador) {
-                            
+                    
+                    if (data.id>id_jugador) {
+                        setTurno(false)
+                    } else {
+                        setTurno(true)
+                    }
+
                     fetch(`http://localhost:4000/traerAtaques?id_partida=${id_partida}&&id_jugador=${data.id}`)
                         .then(response => response.json())
                         .then(ataques => {
@@ -82,7 +88,7 @@ export default function ChatPageInterno() {
                             const copia = tablero.map((fila) => [...fila]);
 
                             for (const ataque of ataques) {
-                                posicion=pasarANum(ataque.posicion)
+                                const posicion=pasarANum(ataque.posicion)
                                 if (tableroAtaques[posicion.fila][posicion.columna]=1 && ataque.acierto==1) {
                                     tableroAtaques[posicion.fila][posicion.columna]=2
                                     
@@ -104,8 +110,14 @@ export default function ChatPageInterno() {
             socket.on("ataqueRta", (data) => {
                 if (data.id!=id_jugador) {
                     if(data.acierto){
-                        alert("FUEGO")
+                        const copia = tableroAtaques.map((fila) => [...fila]);
+                        copia[data.posicion.fila][data.posicion.columna]=1
+                        setTableroAtaques(copia)
                     }else{
+                        const copia = tableroAtaques.map((fila) => [...fila]);
+                        copia[data.posicion.fila][data.posicion.columna]=2
+
+                        setTablero(copia)
                         setTurno(false)
                         
                         socket.emit("cambioDeTurno", { id: id_jugador })
@@ -119,12 +131,14 @@ export default function ChatPageInterno() {
                     setTurno(true)
                 }
             })
+
+
             socket.on("ataque", (data) => {
                 if (data.id!=id_jugador) {
-                    if (tablero[data.posicion.fila][data.posicion.columna]= 1 ){
-                        socket.emit("ataqueRta", { id: id_jugador, acierto: true })
+                    if (tablero[data.posicion.fila][data.posicion.columna]== 1 ){
+                        socket.emit("ataqueRta", { id: id_jugador, acierto: true, posicion: data.posicion})
                     }else{
-                        socket.emit("ataqueRta", { id: id_jugador, acierto: false })
+                        socket.emit("ataqueRta", { id: id_jugador, acierto: false, posicion: data.posicion})
 
                     }
                 }
@@ -137,7 +151,7 @@ export default function ChatPageInterno() {
         
         if(barcos.length==5){
             setPreparado(true)
-            socket.emit("listo", { id: id_jugador })
+
         }
     }, [barcos]);
 
