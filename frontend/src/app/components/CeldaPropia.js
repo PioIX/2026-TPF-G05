@@ -1,4 +1,4 @@
-export default function CeldaPropia({fila, columna, inicio, final, setInicio, setFinal, estado}) {
+export default function CeldaPropia({fila, columna, inicio, final, setInicio, setFinal, estado, deshabilitar}) {
 
     function guardarPosicion(){
         if(!inicio){
@@ -16,7 +16,7 @@ export default function CeldaPropia({fila, columna, inicio, final, setInicio, se
 
     return (
         <>
-            <button onClick={guardarPosicion} className="">{estado}</button>
+            <button onClick={guardarPosicion} disabled={deshabilitar} className="">{estado}</button>
         </>
         
     )

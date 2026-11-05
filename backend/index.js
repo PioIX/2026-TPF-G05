@@ -60,13 +60,16 @@ io.on("connection", (socket) => {
 
 
   socket.on("listo", (data) => {
+    console.log("listo", data)
     io.to(req.session.room).emit("listo", data);
   });
   socket.on("ataque", (data) => {
+    console.log("ataque", data)
     io.to(req.session.room).emit("ataque", data);
   });
 
   socket.on("ataqueRta", (data) => {
+    console.log("ataqueRta", data)
     io.to(req.session.room).emit("ataqueRta", data);
   });
 

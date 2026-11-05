@@ -21,8 +21,8 @@ export default function ChatPageInterno() {
     const [final, setFinal]= useState(undefined)
     const [barcos, setBarcos]= useState([])
     const [turno, setTurno]= useState(true)
-    const [misAtaques, setMisAtaques]= useState([])
-    const [ataquesRival, setAtaquesRival]= useState([])
+    
+    
 
 
     const [posicionAtaque, setPosicionAtaque]= useState(undefined)
@@ -33,7 +33,7 @@ export default function ChatPageInterno() {
 
     const [tablero, setTablero]= useState(
         [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],-
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -45,8 +45,6 @@ export default function ChatPageInterno() {
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
         ]
     )
-
-    
     const [tableroAtaques, setTableroAtaques]= useState(
         [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -62,8 +60,6 @@ export default function ChatPageInterno() {
         ]
     )
 
-            
-    
     const finRef = useRef(null);
 
     useEffect(() => {
@@ -80,29 +76,6 @@ export default function ChatPageInterno() {
                         setTurno(true)
                     }
 
-                    fetch(`http://localhost:4000/traerAtaques?id_partida=${id_partida}&&id_jugador=${data.id}`)
-                        .then(response => response.json())
-                        .then(ataques => {
-                            setAtaquesRival(ataques)
-
-                            const copia = tablero.map((fila) => [...fila]);
-
-                            for (const ataque of ataques) {
-                                const posicion=pasarANum(ataque.posicion)
-                                if (tableroAtaques[posicion.fila][posicion.columna]=1 && ataque.acierto==1) {
-                                    tableroAtaques[posicion.fila][posicion.columna]=2
-                                    
-                                }
-
-                                
-                            }
-                                setTablero(copia)
-                        })
-
-                    
-
-                    
-
                 }
 
             });
@@ -117,21 +90,13 @@ export default function ChatPageInterno() {
                         const copia = tableroAtaques.map((fila) => [...fila]);
                         copia[data.posicion.fila][data.posicion.columna]=2
 
-                        setTablero(copia)
+                        setTableroAtaques(copia)
                         setTurno(false)
-                        
-                        socket.emit("cambioDeTurno", { id: id_jugador })
                     }
 
                 }
                 
             })
-            socket.on("cambioDeTurno", (data) => {
-                if (data.id!=id_jugador) {
-                    setTurno(true)
-                }
-            })
-
 
             socket.on("ataque", (data) => {
                 if (data.id!=id_jugador) {
@@ -139,6 +104,7 @@ export default function ChatPageInterno() {
                         socket.emit("ataqueRta", { id: id_jugador, acierto: true, posicion: data.posicion})
                     }else{
                         socket.emit("ataqueRta", { id: id_jugador, acierto: false, posicion: data.posicion})
+                        setTurno(true)
 
                     }
                 }
@@ -170,8 +136,6 @@ export default function ChatPageInterno() {
         .then(response => response.json())
         .then(data =>{ 
 
-        
-                      
             const copia = tablero.map((fila) => [...fila]);
 
             for (const barco of data) {
@@ -182,7 +146,7 @@ export default function ChatPageInterno() {
                 for (const posicion of posiciones) {
                     copia[posicion.fila][posicion.columna] = 1;
                 }
-                                
+            
             }            
 
             setTablero(copia)
@@ -190,7 +154,7 @@ export default function ChatPageInterno() {
 
         })
 
-            
+
     }, []);
 
     function confirmar(){
@@ -426,6 +390,7 @@ export default function ChatPageInterno() {
                         setInicio={setInicio}
                         final={final}
                         inicio={inicio}
+                        deshabilitar={preparado}
                         ></TablaPropio>
                         
 
@@ -438,10 +403,8 @@ export default function ChatPageInterno() {
                     <div className="mensajes">
                     
                         <TablaDeAtaque
-                        
                         tablero={tableroAtaques}
                         setPosicionAtaque={setPosicionAtaque}
-                        
                         ></TablaDeAtaque>
 
                     </div>

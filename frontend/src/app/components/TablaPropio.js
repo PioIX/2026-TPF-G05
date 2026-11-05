@@ -1,6 +1,6 @@
 import CeldaPropia from "./CeldaPropia"
 
-export default function TablaPropio({tablero, setFinal, setInicio, final, inicio}) {
+export default function TablaPropio({tablero, setFinal, setInicio, final, inicio, deshabilitar}) {
 
     function renderizarCeldas(){
         let celdas= []
@@ -18,6 +18,7 @@ export default function TablaPropio({tablero, setFinal, setInicio, final, inicio
                 setInicio={setInicio}
                 setFinal={setFinal}
                 estado={tablero[y][x]}
+                deshabilitar={deshabilitar}
                 ></CeldaPropia>)
                 
             }
