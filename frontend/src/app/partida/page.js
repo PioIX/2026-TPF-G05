@@ -33,7 +33,7 @@ export default function ChatPageInterno() {
 
     const [tablero, setTablero]= useState(
         [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],-
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -117,6 +117,8 @@ export default function ChatPageInterno() {
         
         if(barcos.length==5){
             setPreparado(true)
+            socket.emit("listo", { id:id_jugador })
+
 
         }
     }, [barcos]);
@@ -382,20 +384,25 @@ export default function ChatPageInterno() {
         <>
 
                 {turno ? 
-                
-                    <div className="mensajes">
-                        <TablaPropio
-                        tablero={tablero}
-                        setFinal={setFinal}
-                        setInicio={setInicio}
-                        final={final}
-                        inicio={inicio}
-                        deshabilitar={preparado}
-                        ></TablaPropio>
-                        
+                    
+                    <div>
 
+                        <p>tus barcos</p>
+
+                        <div className="mensajes">
+                            <TablaPropio
+                            tablero={tablero}
+                            setFinal={setFinal}
+                            setInicio={setInicio}
+                            final={final}
+                            inicio={inicio}
+                            deshabilitar={preparado}
+                            ></TablaPropio>
+                            
+    
+                        </div>
+                    
                     </div>
-                
                 
                 
                 
