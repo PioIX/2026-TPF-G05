@@ -38,6 +38,8 @@ io.use((socket, next) => {
 
 let contador = 0;
 
+let idA
+let idB
 io.on("connection", (socket) => {
   const req = socket.request;
 
@@ -58,10 +60,18 @@ io.on("connection", (socket) => {
 
 
 
-
   socket.on("listo", (data) => {
+    if (!idA) {
+      idA=data.id
+    }else{
+      idB=data.id
+      io.to(req.session.room).emit("listo",{ id:undefined, idA: idA, idB:idB });
+      console.log("listo",  { id:undefined, idA: idA, idB:idB })
+      idA=undefined
+      idB=undefined
+    }
+
     console.log("listo", data)
-    io.to(req.session.room).emit("listo", data);
   });
   socket.on("ataque", (data) => {
     console.log("ataque", data)

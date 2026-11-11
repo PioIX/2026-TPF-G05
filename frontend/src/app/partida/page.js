@@ -15,12 +15,12 @@ export default function ChatPageInterno() {
 
     const { socket } = useSocket();
     const searchParams = useSearchParams();
-    const id_jugador = searchParams.get("id_jugador")
-    const id_partida = searchParams.get("id_partida")
+    const id_jugador = Number(searchParams.get("id_jugador"))
+    const id_partida = Number(searchParams.get("id_partida"))
     const [inicio, setInicio]= useState(undefined)
     const [final, setFinal]= useState(undefined)
     const [barcos, setBarcos]= useState([])
-    const [turno, setTurno]= useState(true)
+    const [turno, setTurno]= useState(false)
     
     
 
@@ -70,7 +70,7 @@ export default function ChatPageInterno() {
             socket.on("listo", (data) => {
                 if (data.id != id_jugador) {
                     
-                    if (data.id>id_jugador) {
+                    if (data.idA<id_jugador || data.idB<id_jugador) {
                         setTurno(false)
                     } else {
                         setTurno(true)
@@ -82,6 +82,7 @@ export default function ChatPageInterno() {
 
             socket.on("ataqueRta", (data) => {
                 if (data.id!=id_jugador) {
+                    console.log("rta:", data.acierto)
                     if(data.acierto){
                         const copia = tableroAtaques.map((fila) => [...fila]);
                         copia[data.posicion.fila][data.posicion.columna]=1
@@ -99,14 +100,22 @@ export default function ChatPageInterno() {
             })
 
             socket.on("ataque", (data) => {
+                console.log("ataque recibido")
+                console.log(tablero)
                 if (data.id!=id_jugador) {
+                    const copia = tablero.map((fila) => [...fila]);
+
                     if (tablero[data.posicion.fila][data.posicion.columna]== 1 ){
                         socket.emit("ataqueRta", { id: id_jugador, acierto: true, posicion: data.posicion})
+                        copia[data.posicion.fila][data.posicion.columna]=2
                     }else{
                         socket.emit("ataqueRta", { id: id_jugador, acierto: false, posicion: data.posicion})
+                        copia[data.posicion.fila][data.posicion.columna]=3
+
                         setTurno(true)
 
                     }
+                    setTablero(copia)
                 }
             })
         }
@@ -115,14 +124,19 @@ export default function ChatPageInterno() {
 
     useEffect(() => {
         
-        if(barcos.length==5){
+        if(barcos.length==5 && socket){
             setPreparado(true)
             socket.emit("listo", { id:id_jugador })
 
 
         }
-    }, [barcos]);
+    }, [barcos, socket]);
 
+    
+    useEffect(() => {
+        
+        console.log(tablero)
+    }, [tablero]);
 
     useEffect(() => {
         if (final) {
@@ -134,7 +148,7 @@ export default function ChatPageInterno() {
     useEffect(() => {
         
     
-        fetch(`http://localhost:4000/traerBarcos?id_partida=${id_partida}&&id_jugador=${id_jugador}`)
+        fetch(`http://localhost:4000/traerBarcos?id_partida=${id_partida}&id_jugador=${id_jugador}`)
         .then(response => response.json())
         .then(data =>{ 
 
@@ -143,7 +157,7 @@ export default function ChatPageInterno() {
             for (const barco of data) {
                 const posiciones =dimensionar(pasarANum(barco.posicion), barco.longitud, barco.orientacion)
 
-                console.log("posiciones",posiciones)
+
  
                 for (const posicion of posiciones) {
                     copia[posicion.fila][posicion.columna] = 1;
@@ -161,6 +175,7 @@ export default function ChatPageInterno() {
 
     function confirmar(){
         socket.emit("ataque", { id:id_jugador, posicion: posicionAtaque })
+        console.log("ataque enviado")
     }
 
 
@@ -215,8 +230,6 @@ export default function ChatPageInterno() {
             return 
         }
 
-        
-        console.log(posiciones);
         
         
         const copia = tablero.map((fila) => [...fila]);
@@ -313,7 +326,7 @@ export default function ChatPageInterno() {
 
  
     function dimensionar(puntoA, longitud, orientacion) {
-        console.log(longitud)
+
         
         const posiciones = [];
 
@@ -326,7 +339,7 @@ export default function ChatPageInterno() {
                 posiciones.push({ fila: puntoA.fila + i, columna: puntoA.columna });
             }
         }
-
+        console.log("posiciones del bacro:", posiciones)
         return posiciones;
     }    
     
@@ -335,8 +348,7 @@ export default function ChatPageInterno() {
         const fila = Number(posicion.slice(1)) - 1
         const letra = posicion[0].toUpperCase()
         const columna= letras.indexOf(letra)
-        console.log(fila)
-        console.log({fila: fila, columna: columna})
+
         return {fila: fila, columna: columna}
     }
     function pasarALetra(posicion) {
@@ -381,50 +393,51 @@ export default function ChatPageInterno() {
 
 
     return (
-        <>
+    <>
+        {!preparado && (
+            <div>
+                <p>poné tus barcos</p>
+                <TablaPropio
+                    tablero={tablero}
+                    setFinal={setFinal}
+                    setInicio={setInicio}
+                    final={final}
+                    inicio={inicio}
+                    deshabilitar={preparado}
+                ></TablaPropio>
+            </div>
+        )}
 
-                {turno ? 
-                    
-                    <div>
+        {preparado && turno && (
+            <div>
+                <p>tu turno</p>
+                <TablaDeAtaque
+                    tablero={tableroAtaques}
+                    setPosicionAtaque={setPosicionAtaque}
+                ></TablaDeAtaque>
 
-                        <p>tus barcos</p>
+                <Boton
+                    funcion={confirmar}
+                    text="Atacar"
+                    deshabilitar={!posicionAtaque}
+                ></Boton>
+            </div>
+        )}
 
-                        <div className="mensajes">
-                            <TablaPropio
-                            tablero={tablero}
-                            setFinal={setFinal}
-                            setInicio={setInicio}
-                            final={final}
-                            inicio={inicio}
-                            deshabilitar={preparado}
-                            ></TablaPropio>
-                            
-    
-                        </div>
-                    
-                    </div>
-                
-                
-                
-                :
-                    <div className="mensajes">
-                    
-                        <TablaDeAtaque
-                        tablero={tableroAtaques}
-                        setPosicionAtaque={setPosicionAtaque}
-                        ></TablaDeAtaque>
-
-                    </div>
-
-                }
-
-
-
-            <Boton funcion={confirmar} text="Confirmar" deshabilitar={barcos.length<5}></Boton>   
-
-
-        
-        </>
+        {preparado && !turno && (
+            <div>
+                <p>turno del rival</p>
+                <TablaPropio
+                    tablero={tablero}
+                    setFinal={setFinal}
+                    setInicio={setInicio}
+                    final={final}
+                    inicio={inicio}
+                    deshabilitar={preparado}
+                ></TablaPropio>
+            </div>
+        )}
+    </>
     );
 }
 
