@@ -28,7 +28,9 @@ export default function ChatPageInterno() {
     const [posicionAtaque, setPosicionAtaque]= useState(undefined)
     const [preparado, setPreparado]= useState(undefined)
 
-
+    const [fila, setFila] = useState(-1)
+    const [columna, setColumna] = useState(-1)
+    const [posicion, setPosicion] = useState(-1)
 
 
     const [tablero, setTablero]= useState(
@@ -84,11 +86,11 @@ export default function ChatPageInterno() {
                 if (data.id!=id_jugador) {
                     console.log("rta:", data.acierto)
                     if(data.acierto){
-                        const copia = tableroAtaques.map((fila) => [...fila]);
+                        let copia = tableroAtaques.map((fila) => [...fila]);
                         copia[data.posicion.fila][data.posicion.columna]=1
                         setTableroAtaques(copia)
                     }else{
-                        const copia = tableroAtaques.map((fila) => [...fila]);
+                        let copia = tableroAtaques.map((fila) => [...fila]);
                         copia[data.posicion.fila][data.posicion.columna]=2
 
                         setTableroAtaques(copia)
@@ -100,11 +102,21 @@ export default function ChatPageInterno() {
             })
 
             socket.on("ataque", (data) => {
-                console.log("ataque recibido")
+
+                if (data.id != id_jugador) {
+                    setFila(data.posicion.fila)
+                    setColumna(data.posicion.columna)
+                    setPosicion(data.posicion)
+                    
+                }
+
+
+
+               /* console.log("ataque recibido")
                 console.log(tablero)
                 if (data.id!=id_jugador) {
-                    const copia = tablero.map((fila) => [...fila]);
-
+                    let copia = tablero.map((fila) => [...fila]);
+                    console.log(copia)
                     if (tablero[data.posicion.fila][data.posicion.columna]== 1 ){
                         socket.emit("ataqueRta", { id: id_jugador, acierto: true, posicion: data.posicion})
                         copia[data.posicion.fila][data.posicion.columna]=2
@@ -115,12 +127,36 @@ export default function ChatPageInterno() {
                         setTurno(true)
 
                     }
+                    console.log(copia)
                     setTablero(copia)
-                }
+                }*/
             })
+
+            socket.on("prueba", (data) => {
+                console.log("socket", tablero)
+                
+            })
+
+
         }
     }, [socket]);
 
+    useEffect(()=>{
+        if (fila != -1 && columna != -1 && posicion != -1) {
+            let copia = tablero.map((fila) => [...fila]);
+            console.log(copia)
+            if (tablero[fila][columna]== 1 ){
+                socket.emit("ataqueRta", { id: id_jugador, acierto: true, posicion: posicion})
+                copia[fila][columna]=2
+            }else{
+                socket.emit("ataqueRta", { id: id_jugador, acierto: false, posicion: posicion})
+                copia[fila][columna]=3
+
+                setTurno(true)
+
+            }
+        }
+    }, [fila, columna, posicion])
 
     useEffect(() => {
         
@@ -137,6 +173,11 @@ export default function ChatPageInterno() {
         
         console.log(tablero)
     }, [tablero]);
+
+      useEffect(() => {
+        
+        console.log(tableroAtaques)
+    }, [tableroAtaques]);
 
     useEffect(() => {
         if (final) {
@@ -437,7 +478,8 @@ export default function ChatPageInterno() {
                 ></TablaPropio>
             </div>
         )}
-    </>
+        <button onClick={()=> {socket.emit("prueba", { room: id_partida })}}> </button>
+        </>
     );
 }
 

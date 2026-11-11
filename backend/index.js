@@ -71,6 +71,17 @@ io.on("connection", (socket) => {
       idB=undefined
     }
 
+    
+
+    console.log("listo", data)
+  });
+
+    socket.on("prueba", (data) => {
+
+      io.to(req.session.room).emit("prueba",{ id:undefined, idA: idA, idB:idB });
+      console.log("prueba",  { id:undefined, idA: idA, idB:idB })
+      idA=undefined
+      idB=undefined
     console.log("listo", data)
   });
   socket.on("ataque", (data) => {
