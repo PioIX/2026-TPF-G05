@@ -149,6 +149,16 @@ export default function ChatPageInterno() {
                 setTurno(true)
 
             }
+            let quedanBarcos=false
+            for (let y = 0; index < 10; y++) {
+                for (let x = 0; x < 10; x++) {
+                    if(copia[y][x]=1){
+                        quedanBarcos=true
+                        return
+                    }
+                    
+                }
+            }
             setTablero(copia)
 
         }

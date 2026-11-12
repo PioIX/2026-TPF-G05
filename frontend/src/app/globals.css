@@ -244,6 +244,15 @@ img {
 .recivido p {
   font-size: 0.95rem;
 }
+.barco{
+  background-color: #337241;
+}
+.barcoUndido{
+  background-color: #8d0b0b;
+}
+.agua{
+  background-color: #000000;
+}
 
 .enviado strong,
 .recibido strong,

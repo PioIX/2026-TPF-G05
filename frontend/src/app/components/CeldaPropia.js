@@ -10,13 +10,33 @@ export default function CeldaPropia({fila, columna, inicio, final, setInicio, se
             setFinal({fila: fila, columna: columna})
             console.log("final guardado")
         }
-
-        
     }
-
+    
+    let clase
+    switch (estado) {
+        case 0:
+            clase=""
+            break;
+        case 1:
+            clase="barco"
+            
+            break;
+        case 2:
+            clase="barcoUndido"
+            
+            break;
+        case 3:
+            clase="agua"
+            
+            break;
+    
+        default:
+            break;
+    }
+    
     return (
         <>
-            <button onClick={guardarPosicion} disabled={deshabilitar} className="">{estado}</button>
+            <button onClick={guardarPosicion} disabled={deshabilitar} className={clase}></button>
         </>
         
     )
