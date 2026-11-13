@@ -10,7 +10,7 @@ export default function ChatItem({nombre, id_partida,id_jugador,id_ganador }) {
 
     function irAPartida(){
 
-        router.push(`/partida?id_partida=${id_partida}&&id_jugador=${id_jugador}&&`)
+        router.push(`/partida?id_partida=${id_partida}&id_jugador=${id_jugador}`)
 
     }
 

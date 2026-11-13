@@ -28,6 +28,8 @@ export default function ChatPageInterno() {
     const [posicionAtaque, setPosicionAtaque]= useState(undefined)
     const [preparado, setPreparado]= useState(undefined)
     const [ataqueRival, setAtaqueRival]= useState(undefined)
+    const [terminar, setTerminar]= useState(false)
+
 
 
     const [posicion, setPosicion] = useState(undefined)
@@ -77,6 +79,16 @@ export default function ChatPageInterno() {
                     } else {
                         setTurno(true)
                     }
+
+                }
+
+            });
+
+            socket.on("ganaste", (data) => {
+                if (data.id != id_jugador) {
+                    
+                    alert("Felicidades ganaste!!!")
+                    setTerminar(true)
 
                 }
 
@@ -155,7 +167,10 @@ export default function ChatPageInterno() {
                 }
             }
             if (!quedanBarcos) {
-                socket.emit("ganaste", { id: id_jugador, acierto: false, posicion: posicion})
+                console.log("NO QUEDAN BARCOS")
+                setTerminar(true)
+
+
             }
 
         }
@@ -173,9 +188,12 @@ export default function ChatPageInterno() {
 
     
     useEffect(() => {
+        if (terminar) {
+            socket.emit("ganaste", { id: id_jugador })
+            
+        }
         
-        console.log(tablero)
-    }, [tablero]);
+    }, [terminar]);
 
     useEffect(() => {
         
@@ -445,7 +463,7 @@ export default function ChatPageInterno() {
     <>
         {!preparado && (
             <div>
-                <p>poné tus barcos</p>
+                {!terminar && <p>poné tus barcos</p>}
                 <TablaPropio
                     tablero={tablero}
                     setFinal={setFinal}
