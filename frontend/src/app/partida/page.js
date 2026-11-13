@@ -104,11 +104,6 @@ export default function ChatPageInterno() {
 
             })
 
-            socket.on("prueba", (data) => {
-                console.log("socket", tablero)
-                
-            })
-
 
         }
     }, [socket]);
@@ -149,17 +144,19 @@ export default function ChatPageInterno() {
                 setTurno(true)
 
             }
+            setTablero(copia)
             let quedanBarcos=false
-            for (let y = 0; index < 10; y++) {
+            for (let y = 0; y < 10; y++) {
                 for (let x = 0; x < 10; x++) {
-                    if(copia[y][x]=1){
+                    if(copia[y][x]==1){
                         quedanBarcos=true
-                        return
                     }
                     
                 }
             }
-            setTablero(copia)
+            if (!quedanBarcos) {
+                socket.emit("ganaste", { id: id_jugador, acierto: false, posicion: posicion})
+            }
 
         }
     }, [posicion])
@@ -221,8 +218,13 @@ export default function ChatPageInterno() {
     }, []);
 
     function confirmar(){
-        socket.emit("ataque", { id:id_jugador, posicion: posicionAtaque })
-        console.log("ataque enviado")
+
+        if(tableroAtaques[posicionAtaque.fila][posicionAtaque.columna] == 0){
+            socket.emit("ataque", { id:id_jugador, posicion: posicionAtaque })
+            console.log("ataque enviado")
+        }else{
+            alert("ya atacaste esa posicion")
+        }
     }
 
 
@@ -484,7 +486,7 @@ export default function ChatPageInterno() {
                 ></TablaPropio>
             </div>
         )}
-        <button onClick={()=> {socket.emit("prueba", { room: id_partida })}}> </button>
+
         </>
     );
 }

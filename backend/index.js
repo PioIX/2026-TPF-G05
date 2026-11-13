@@ -61,7 +61,9 @@ io.on("connection", (socket) => {
 
 
   socket.on("listo", (data) => {
-    if (!idA) {
+    
+    console.log("listo", data)
+    if (idA==undefined) {
       idA=data.id
     }else{
       idB=data.id
@@ -73,7 +75,6 @@ io.on("connection", (socket) => {
 
     
 
-    console.log("listo", data)
   });
 
     socket.on("prueba", (data) => {
@@ -100,6 +101,8 @@ io.on("connection", (socket) => {
 
 
   socket.on("disconnect", () => {
+    idA=undefined
+    idB=undefined
     console.log("Disconnect");
   });
 });
