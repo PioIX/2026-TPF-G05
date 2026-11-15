@@ -8,31 +8,40 @@ import { useSocket } from "../hooks/useSocket";
 import Boton from '../components/Boton';
 import TablaPropio from "../components/TablaPropio";
 import TablaDeAtaque from "../components/TablaDeAtaque";
-import { CONFIG_FILES } from "next/dist/shared/lib/constants";
 
+import Popup from "reactjs-popup";
+import "reactjs-popup/dist/index.css";
 
 export default function ChatPageInterno() {
 
     const { socket } = useSocket();
+
     const searchParams = useSearchParams();
     const id_jugador = Number(searchParams.get("id_jugador"))
     const id_partida = Number(searchParams.get("id_partida"))
+    
+    
     const [inicio, setInicio]= useState(undefined)
     const [final, setFinal]= useState(undefined)
     const [barcos, setBarcos]= useState([])
+    
+    
+    
+    
+    
+    const [preparado, setPreparado]= useState(undefined)
     const [turno, setTurno]= useState(false)
+    const [terminar, setTerminar]= useState(false)
+    const [popupCerrado, setPopupCerrado] = useState(false)
+    const [ganaste, setGanaste] = useState(false)
     
-    
-
 
     const [posicionAtaque, setPosicionAtaque]= useState(undefined)
-    const [preparado, setPreparado]= useState(undefined)
     const [ataqueRival, setAtaqueRival]= useState(undefined)
-    const [terminar, setTerminar]= useState(false)
-
-
-
     const [posicion, setPosicion] = useState(undefined)
+
+
+
 
 
     const [tablero, setTablero]= useState(
@@ -64,7 +73,7 @@ export default function ChatPageInterno() {
         ]
     )
 
-    const finRef = useRef(null);
+
 
     useEffect(() => {
         
@@ -84,14 +93,20 @@ export default function ChatPageInterno() {
 
             });
 
-            socket.on("ganaste", (data) => {
+            socket.on("terminar", (data) => {
                 if (data.id != id_jugador) {
-                    
-                    alert("Felicidades ganaste!!!")
+                    setGanaste(true)
                     setTerminar(true)
 
+                    fetch("http://localhost:4000/terminarPartida", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            id_partida: id_partida, 
+                            id_ganador: id_jugador 
+                        })
+                    })
                 }
-
             });
 
             socket.on("ataqueRta", (data) => {
@@ -167,8 +182,10 @@ export default function ChatPageInterno() {
                 }
             }
             if (!quedanBarcos) {
+                socket.emit("terminar", { id: id_jugador })
                 console.log("NO QUEDAN BARCOS")
                 setTerminar(true)
+                setPreparado(false)
 
 
             }
@@ -187,13 +204,6 @@ export default function ChatPageInterno() {
     }, [barcos, socket]);
 
     
-    useEffect(() => {
-        if (terminar) {
-            socket.emit("ganaste", { id: id_jugador })
-            
-        }
-        
-    }, [terminar]);
 
     useEffect(() => {
         
@@ -239,6 +249,7 @@ export default function ChatPageInterno() {
 
         if(tableroAtaques[posicionAtaque.fila][posicionAtaque.columna] == 0){
             socket.emit("ataque", { id:id_jugador, posicion: posicionAtaque })
+            setPosicionAtaque(undefined)
             console.log("ataque enviado")
         }else{
             alert("ya atacaste esa posicion")
@@ -461,9 +472,20 @@ export default function ChatPageInterno() {
 
     return (
     <>
-        {!preparado && (
+        <Popup
+            open={terminar && !popupCerrado}
+            onClose={() => setPopupCerrado(true)}
+            modal
+        >
             <div>
-                {!terminar && <p>poné tus barcos</p>}
+                <h2>{ganaste ? "¡Ganaste!" : "Perdiste"}</h2>
+                <button onClick={() => setPopupCerrado(true)}>Cerrar</button>
+            </div>
+        </Popup>
+
+        {!preparado && !terminar && (
+            <div>
+                <p>pone tus barcos</p>
                 <TablaPropio
                     tablero={tablero}
                     setFinal={setFinal}
@@ -475,7 +497,7 @@ export default function ChatPageInterno() {
             </div>
         )}
 
-        {preparado && turno && (
+        {preparado && turno && !terminar && (
             <div>
                 <p>tu turno</p>
                 <TablaDeAtaque
@@ -491,7 +513,7 @@ export default function ChatPageInterno() {
             </div>
         )}
 
-        {preparado && !turno && (
+        {preparado && !turno && !terminar && (
             <div>
                 <p>turno del rival</p>
                 <TablaPropio
@@ -500,13 +522,26 @@ export default function ChatPageInterno() {
                     setInicio={setInicio}
                     final={final}
                     inicio={inicio}
-                    deshabilitar={preparado}
+                    deshabilitar={true}
                 ></TablaPropio>
             </div>
         )}
 
-        </>
-    );
+        {terminar && (
+            <div>
+
+                <TablaPropio
+                    tablero={tablero}
+                    setFinal={setFinal}
+                    setInicio={setInicio}
+                    final={final}
+                    inicio={inicio}
+                    deshabilitar={true}
+                ></TablaPropio>
+            </div>
+        )}
+    </>
+    )
 }
 
 

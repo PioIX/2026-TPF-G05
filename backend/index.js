@@ -36,10 +36,7 @@ io.use((socket, next) => {
   sessionMiddleware(socket.request, {}, next);
 });
 
-let contador = 0;
-
-let idA
-let idB
+let listos = [];  
 io.on("connection", (socket) => {
   const req = socket.request;
 
@@ -57,33 +54,30 @@ io.on("connection", (socket) => {
   });
 
 
+  let miId;
 
 
 
   socket.on("listo", (data) => {
-    
-    console.log("listo", data)
-    if (idA==undefined) {
-      idA=data.id
-    }else{
-      idB=data.id
-      io.to(req.session.room).emit("listo",{ id:undefined, idA: idA, idB:idB });
-      console.log("listo",  { id:undefined, idA: idA, idB:idB })
-      idA=undefined
-      idB=undefined
+    miId = data.id;
+
+    if (!listos.includes(data.id)) listos.push(data.id)
+
+    if (listos.length === 2) {
+      io.to(req.session.room).emit("listo", { idA: listos[0], idB: listos[1] })
+      listos = []
     }
-
-    
-
   });
 
-    socket.on("prueba", (data) => {
 
-      io.to(req.session.room).emit("prueba",{ id:undefined, idA: idA, idB:idB });
-      console.log("prueba",  { id:undefined, idA: idA, idB:idB })
-      idA=undefined
-      idB=undefined
-    console.log("listo", data)
+
+
+
+  socket.on("terminar", (data) => {
+
+    console.log("terminar", data)
+    io.to(req.session.room).emit("terminar",data);
+
   });
   socket.on("ataque", (data) => {
     console.log("ataque", data)
@@ -95,14 +89,11 @@ io.on("connection", (socket) => {
     io.to(req.session.room).emit("ataqueRta", data);
   });
 
-  socket.on("cambioDeTurno", (data) => {
-    io.to(req.session.room).emit("cambioDeTurno", data);
-  });
+
 
 
   socket.on("disconnect", () => {
-    idA=undefined
-    idB=undefined
+    listos = listos.filter((id) => id !== miId) 
     console.log("Disconnect");
   });
 });
@@ -410,3 +401,16 @@ app.post('/subirAtaque', async function(req, res) {
 });
 
 
+app.post('/terminarPartida', async function(req, res) {
+  try {
+    await realizarQuery(`
+      UPDATE Partidas
+      SET id_ganador = ${Number(req.body.id_ganador)}
+      WHERE id_partida = ${Number(req.body.id_partida)}
+    `);
+
+  } catch (error) {
+    console.log(error.message);
+
+  }
+});
