@@ -1,6 +1,6 @@
 "use client"
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect} from 'react';
 import { useSocket } from "../hooks/useSocket";
 
 
@@ -73,7 +73,26 @@ export default function ChatPageInterno() {
         ]
     )
 
+    useEffect(() => {  
+        fetch(`http://localhost:4000/traerBarcos?id_partida=${id_partida}&id_jugador=${id_jugador}`)
+        .then(response => response.json())
+        .then(data =>{ 
+            const copia = tablero.map((fila) => [...fila]);
 
+            for (const barco of data) {
+                const posiciones =dimensionar(pasarANum(barco.posicion), barco.longitud, barco.orientacion)
+
+                for (const posicion of posiciones) {
+                    copia[posicion.fila][posicion.columna] = 1;
+                }
+            
+            }            
+
+            setTablero(copia)
+            setBarcos(data)
+          })
+
+    }, []);
 
     useEffect(() => {
         
@@ -203,47 +222,88 @@ export default function ChatPageInterno() {
         }
     }, [barcos, socket]);
 
-    
-
-    useEffect(() => {
-        
-        console.log(tableroAtaques)
-    }, [tableroAtaques]);
-
     useEffect(() => {
         if (final) {
-            
             validarBarco()
         }
     }, [final]);
-
-    useEffect(() => {
-        
     
-        fetch(`http://localhost:4000/traerBarcos?id_partida=${id_partida}&id_jugador=${id_jugador}`)
-        .then(response => response.json())
-        .then(data =>{ 
-
-            const copia = tablero.map((fila) => [...fila]);
-
-            for (const barco of data) {
-                const posiciones =dimensionar(pasarANum(barco.posicion), barco.longitud, barco.orientacion)
 
 
- 
-                for (const posicion of posiciones) {
-                    copia[posicion.fila][posicion.columna] = 1;
-                }
+
+    function validarBarco() {
+        // verifica que los puntos no esten vacios
+        if (!inicio || !final) { 
+            setInicio(undefined)
+            setFinal(undefined)
+            alert("no hay posiciones guardadas")
+            return 
+
+        }
+
+        const barco = construirBarco()
+    
+        if (!barco || barco.longitud>5 || barco.longitud<2) {
+            setInicio(undefined)
+            setFinal(undefined)
+            alert("la forma del barcon no es posible")
+            return 
+        }
+        
+        const copia = tablero.map((fila) => [...fila]);
+    
+
+        const existe=verificarSiExiste(barco.longitud)
+
+
+
+        if (!existe.existe) { //si no existe lo añade
             
-            }            
-
-            setTablero(copia)
-            setBarcos(data)
-
+            for (const posicion of barco.posiciones) {// verifica que ninguna de las posiciones este ocupada
+                if(tablero[posicion.fila][posicion.columna]==1){    
+                    setInicio(undefined)
+                    setFinal(undefined)
+                    alert("posicion no es valida")
+                    return
+                }    
+            }
+    
+            for (const posicion of barco.posiciones) {// las añade
+                copia[posicion.fila][posicion.columna]=1;
+                
+            }
+        }else{
+            setInicio(undefined)
+            setFinal(undefined)
+            alert("el barco ya existe")
+            return 
+        }
+        
+        // agrega el baco a la lista
+        let copiaBarcos = [];
+        barcos.forEach((c) => copiaBarcos.push(c));
+        
+        copiaBarcos.push({
+            orientacion: barco.orientacion,
+            posicion: barco.punto,
+            longitud: barco.longitud, 
+            id_barco: existe.idBarco 
+        })
+        subirBarco({
+            orientacion: barco.orientacion,
+            posicion: barco.punto,
+            id_barco: existe.idBarco,
+            id_jugador: id_jugador,
+            id_partida: id_partida
         })
 
+        setBarcos(copiaBarcos)
+        setTablero(copia)
+        
+        setInicio(undefined)
+        setFinal(undefined)
+    }
 
-    }, []);
 
     function confirmar(){
 
@@ -257,71 +317,11 @@ export default function ChatPageInterno() {
     }
 
 
+    function verificarSiExiste(longitud) {
+        let existe=barcos.some(barco => barco.longitud == longitud) // si hay algun barco de la misma longitud existe sera TRUE 
 
-    function validarBarco() {
-        // verifica que los puntos no esten vacios
-        if (!inicio || !final) { 
-            setInicio(undefined)
-            setFinal(undefined)
-            alert("posicion no es valida")
-            return 
-
-        }
-
-        
-        // variables dode se gurdan los datos del barco
-        let coordenadas
-        let orientacion
-
-        // array de las posiciones que va a ocupar el barco en la matriz 
-        let posiciones = [];
-
-        // verificacion de la orientacion segun la coinidencia de filas y columnas
-
-        if (inicio.fila == final.fila) {
-            orientacion="horizontal"
-            if (final.columna > inicio.columna) { // averigua que punto es esta mas en la esqina superior izquierda (este sera el punto de referencia del  barco)
-                posiciones = dimensionar(inicio, final.columna - inicio.columna + 1, "horizontal");
-                coordenadas=pasarALetra(inicio)
-            } else {
-                posiciones = dimensionar(final, inicio.columna - final.columna  + 1, "horizontal");
-                coordenadas=pasarALetra(final)
-                
-
-            }
-        } else if (inicio.columna == final.columna) {
-
-            orientacion="vertical"
-            if (final.fila > inicio.fila) {
-
-                posiciones = dimensionar(inicio, final.fila - inicio.fila + 1, "vertical");
-                coordenadas=pasarALetra(inicio)
-            } else {
-
-                posiciones = dimensionar(final, inicio.fila - final.fila  + 1, "vertical");
-                coordenadas=pasarALetra(final)
-            }
-        } else { // caso de digonal   
-            setInicio(undefined)
-            setFinal(undefined)
-            alert("posicion no es valida")
-            return 
-        }
-
-        
-        
-        const copia = tablero.map((fila) => [...fila]);
-    
-
-        let existe=barcos.some(barco => barco.longitud == posiciones.length) // si hay algun barco de la misma longitud existe sera TRUE 
-        if (posiciones.length>5 || posiciones.length<2) { // valida las min y max longitudes
-            setInicio(undefined)
-            setFinal(undefined)
-            alert("el barco no el valido")
-            return 
-        }
         //caso especial
-        if (posiciones.length==3) {
+        if (longitud==3) {
             // busca  si es las bastos segun id
             const destructor=barcos.some(barco => barco.id_barco == 3)
             const submarino=barcos.some(barco => barco.id_barco == 4)
@@ -335,35 +335,9 @@ export default function ChatPageInterno() {
             }
 
         }
-
-
-        if (!existe) { //el no existe lo añade
-            
-            for (const posicion of posiciones) {// verifica que ninguna de las posiciones este ocupada
-                if(tablero[posicion.fila][posicion.columna]==1){    
-                    setInicio(undefined)
-                    setFinal(undefined)
-                    alert("posicion no es valida")
-                    return
-                }    
-            }
-    
-            for (const posicion of posiciones) {// las añade
-                copia[posicion.fila][posicion.columna]=1;
-                
-            }
-        }else{
-            setInicio(undefined)
-            setFinal(undefined)
-            alert("el barco ya existe")
-            return 
-        }
-        
-        setInicio(undefined)
-        setFinal(undefined)
         // saca el id seun las longitud
         let idBarco
-        switch (posiciones.length) { 
+        switch (longitud) { 
             case 2:
                 idBarco=5
                 break;
@@ -384,22 +358,55 @@ export default function ChatPageInterno() {
             default:
                 break;
         }
-        // agrega el baco a la lista
-        let copiaBarcos = [];
-        barcos.forEach((c) => copiaBarcos.push(c));
-        copiaBarcos.push({
-            orientacion: orientacion,
-            posicion: coordenadas,
-            longitud: posiciones.length, 
-            id_barco: idBarco 
-        })
-        setBarcos(copiaBarcos)
-        setTablero(copia)
-        subirBarco({
-            orientacion: orientacion,
-            posicion: coordenadas, 
-            id_barco: idBarco 
-        })
+
+        return {existe: existe, idBarco: idBarco}
+    }
+
+    function construirBarco() {
+        // variables dode se gurdan los datos del barco
+        let coordenadas
+        let orientacion
+
+        // array de las posiciones que va a ocupar el barco en la matriz 
+        let posiciones = [];
+
+        let longitud
+
+
+        // verificacion de la orientacion segun la coinidencia de filas y columnas
+
+        if (inicio.fila == final.fila) {
+            orientacion="horizontal"
+            if (final.columna > inicio.columna) { // averigua que punto es esta mas en la esqina superior izquierda (este sera el punto de referencia del  barco)
+
+                longitud=final.columna - inicio.columna + 1
+                posiciones = dimensionar(inicio, longitud, "horizontal");
+                coordenadas=pasarALetra(inicio)
+            } else {
+                longitud=inicio.columna - final.columna  + 1
+                posiciones = dimensionar(final, longitud, "horizontal");
+                coordenadas=pasarALetra(final)
+                
+
+            }
+        } else if (inicio.columna == final.columna) {
+
+            orientacion="vertical"
+            if (final.fila > inicio.fila) {
+
+                longitud=final.fila - inicio.fila + 1
+                posiciones = dimensionar(inicio, longitud, "vertical");
+                coordenadas=pasarALetra(inicio)
+            } else {
+
+                longitud=inicio.fila - final.fila  + 1
+                posiciones = dimensionar(final, longitud, "vertical");
+                coordenadas=pasarALetra(final)
+            }
+        } else { // caso de digonal   
+            return false
+        }
+        return {punto: coordenadas, orientacion: orientacion, longitud: longitud, posiciones: posiciones}
     }
 
  
@@ -436,20 +443,13 @@ export default function ChatPageInterno() {
     }    
     
     function subirBarco(barco) {
-        const data={
-            posicion: barco.posicion,
-            orientacion: barco.orientacion,
-            id_barco: barco.id_barco,
-            id_jugador: id_jugador,
-            id_partida: id_partida
 
-        }
         fetch('http://localhost:4000/subirBarco', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(barco)
         })
 
     }    
@@ -463,12 +463,6 @@ export default function ChatPageInterno() {
 
 
     
-    
-
-
-
-    
-
 
     return (
     <>

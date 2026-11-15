@@ -115,36 +115,7 @@ app.get('/', function(req, res){
 
 
 
-app.get('/usuarios', async function(req,res){
-try {
 
-  let respuesta;
-
-
-  if (req.query.id_user != undefined) {
-
-    respuesta = await realizarQuery(`
-      SELECT *
-      FROM Jugadores 
-      WHERE id_user=${req.query.id_user}
-    `)
-
-  } else {
-
-    respuesta = await realizarQuery(`
-      SELECT * 
-      FROM Jugadores
-    `);
-
-  }    
-
-  res.send(respuesta[0]);
-
-} catch (error) {
-  console.log(error.message);
-    
-}
-})
 
 app.get('/login', async function(req,res){
   try {
@@ -217,12 +188,6 @@ app.post('/registrar', async function(req,res) {
       
   }
 })
-
-
-
-
-
-
 
 
 
@@ -318,12 +283,6 @@ app.post('/crearPartida', async function(req, res) {
 
 
 
-
-
-
-
-
-
 app.get('/traerBarcos', async function(req, res) {
     try {
 
@@ -367,38 +326,6 @@ app.post('/subirBarco', async function(req, res) {
 });
 
 
-app.get('/traerAtaques', async function(req, res) {
-    try {
-
-      let respuesta = await realizarQuery(`
-        SELECT *
-        FROM Ataques
-        WHERE id_jugador = ${req.query.id_jugador} AND id_partida = ${req.query.id_partida}
-      `);
-        console.log(respuesta)
-      res.send(respuesta);
-
-    } catch (error) {
-        console.log(error.message);
-    }
-});
-
-app.post('/subirAtaque', async function(req, res) {
-  try {
-    await realizarQuery(`
-      INSERT INTO Ataques (posicion, id_jugador, id_partida)
-      VALUES (
-        "${req.body.posicion}", 
-        ${req.body.id_jugador}, 
-        ${req.body.id_partida}
-      )
-    `);
-
-  } catch (error) {
-    console.log(error.message);
-
-  }
-});
 
 
 app.post('/terminarPartida', async function(req, res) {
