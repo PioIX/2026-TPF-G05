@@ -1,10 +1,5 @@
-
-
-export default function Boton({funcion, text}) {
-
-
+export default function Boton({funcion, text, className=""}) {
     return(
-        <button onClick={funcion}>{text}</button>
-
+        <button onClick={funcion} className={`boton ${className}`.trim()}>{text}</button>
     );
 }

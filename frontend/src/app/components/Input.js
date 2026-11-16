@@ -1,16 +1,21 @@
-export default function Input({funcion, text, tipo, teclado, valor}) {
-
+export default function Input({funcion, text, tipo, teclado, valor, className=""}) {
     const update = (event) => {
-        console.log(event)
         funcion(event.target.value)
     }
+
+    // Si 'valor' existe, usamos 'value' (controlado). Si no, usamos 'defaultValue' (no controlado).
+    const propsInput = valor !== undefined 
+        ? { value: valor } 
+        : { defaultValue: "" };
 
     return(
         <input
             type={tipo}
             onChange={update}
+            onKeyDown={teclado}
             placeholder={text}
-        ></input>
-
+            className={`input ${className}`.trim()}
+            {...propsInput}
+        />
     );
 }
