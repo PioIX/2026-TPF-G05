@@ -36,8 +36,7 @@ io.use((socket, next) => {
   sessionMiddleware(socket.request, {}, next);
 });
 
-let contador = 0;
-
+let listos = [];  
 io.on("connection", (socket) => {
   const req = socket.request;
 
@@ -54,25 +53,47 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("pingAll", (data) => {
-    console.log("PING ALL: ", data);
-    io.emit("pingAll", { event: "Ping to all", message: data });
+
+  let miId;
+
+
+
+  socket.on("listo", (data) => {
+    miId = data.id;
+
+    if (!listos.includes(data.id)) listos.push(data.id)
+
+    if (listos.length === 2) {
+      io.to(req.session.room).emit("listo", { idA: listos[0], idB: listos[1] })
+      listos = []
+    }
   });
 
-  socket.on("sendMessage", (data) => {
-    console("SALA: ", data)
-    io.to(req.session.room).emit("newMessage", {
-      room: req.session.room,
-      message: data,
-    });
+
+
+
+
+  socket.on("terminar", (data) => {
+
+    console.log("terminar", data)
+    io.to(req.session.room).emit("terminar",data);
+
+  });
+  socket.on("ataque", (data) => {
+    console.log("ataque", data)
+    io.to(req.session.room).emit("ataque", data);
   });
 
-  socket.on("eventoPersonalizado", () => {
-    contador++;
-    socket.emit("respuestaPersonalizada", { contador });
+  socket.on("ataqueRta", (data) => {
+    console.log("ataqueRta", data)
+    io.to(req.session.room).emit("ataqueRta", data);
   });
+
+
+
 
   socket.on("disconnect", () => {
+    listos = listos.filter((id) => id !== miId) 
     console.log("Disconnect");
   });
 });
@@ -94,36 +115,7 @@ app.get('/', function(req, res){
 
 
 
-app.get('/usuarios', async function(req,res){
-try {
 
-  let respuesta;
-
-
-  if (req.query.id_user != undefined) {
-
-    respuesta = await realizarQuery(`
-      SELECT *
-      FROM Jugadores 
-      WHERE id_user=${req.query.id_user}
-    `)
-
-  } else {
-
-    respuesta = await realizarQuery(`
-      SELECT * 
-      FROM Jugadores
-    `);
-
-  }    
-
-  res.send(respuesta[0]);
-
-} catch (error) {
-  console.log(error.message);
-    
-}
-})
 
 app.get('/login', async function(req,res){
   try {
@@ -196,12 +188,6 @@ app.post('/registrar', async function(req,res) {
       
   }
 })
-
-
-
-
-
-
 
 
 
@@ -297,20 +283,15 @@ app.post('/crearPartida', async function(req, res) {
 
 
 
-
-
-
-
-
-
-app.get('/mensajes', async function(req, res) {
+app.get('/traerBarcos', async function(req, res) {
     try {
 
       let respuesta = await realizarQuery(`
-        SELECT Mensajes.contenido, Usuarios.foto, Usuarios.usuario, Mensajes.id_user
-        FROM Mensajes
-        INNER JOIN Usuarios ON Mensajes.id_user = Usuarios.id_user
-        WHERE Mensajes.id_chat = ${req.query.id_chat};
+        SELECT BarcosPorPartida.orientacion, BarcosPorPartida.posicion, Barcos.longitud, Barcos.id_barco
+        FROM BarcosPorPartida
+        INNER JOIN Barcos ON BarcosPorPartida.id_barco = Barcos.id_barco
+        WHERE BarcosPorPartida.id_jugador = ${req.query.id_jugador}
+        AND BarcosPorPartida.id_partida = ${req.query.id_partida}
       `);
         console.log(respuesta)
       res.send(respuesta);
@@ -321,15 +302,17 @@ app.get('/mensajes', async function(req, res) {
 });
 
 
-app.post('/crearMensaje', async function(req, res) {
+app.post('/subirBarco', async function(req, res) {
   try {
-
+    console.log(req.body)
     await realizarQuery(`
-      INSERT INTO Mensajes (contenido, id_chat, id_user)
+      INSERT INTO BarcosPorPartida (posicion, orientacion, id_jugador, id_barco, id_partida)
       VALUES (
-        "${req.body.contenido}",
-        "${req.body.id_chat}",
-        "${req.body.id_user}"
+        "${req.body.posicion}",
+        "${req.body.orientacion}",
+        ${req.body.id_jugador},
+        ${req.body.id_barco},
+        ${req.body.id_partida}
       )
     `);
 
@@ -344,3 +327,17 @@ app.post('/crearMensaje', async function(req, res) {
 
 
 
+
+app.post('/terminarPartida', async function(req, res) {
+  try {
+    await realizarQuery(`
+      UPDATE Partidas
+      SET id_ganador = ${Number(req.body.id_ganador)}
+      WHERE id_partida = ${Number(req.body.id_partida)}
+    `);
+
+  } catch (error) {
+    console.log(error.message);
+
+  }
+});

@@ -10,14 +10,14 @@ export default function ChatItem({nombre, id_partida,id_jugador,id_ganador }) {
 
     function irAPartida(){
 
-        router.push(`/partida?id_partida=${id_partida}&&id_jugador=${id_jugador}&&`)
+        router.push(`/partida?id_partida=${id_partida}&id_jugador=${id_jugador}`)
 
     }
 
 
     return (
         <>
-            <button onClick={irAPartida} className="chat">
+            <button onClick={irAPartida} className="chat" disabled={id_ganador!=null}>
 
                 
                 <div className="chatPre">

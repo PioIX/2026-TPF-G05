@@ -1,4 +1,4 @@
-export default function Input({funcion, text, tipo, teclado, valor}) {
+export default function Input({funcion, text, tipo}) {
 
     const update = (event) => {
         console.log(event)

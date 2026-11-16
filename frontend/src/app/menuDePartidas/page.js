@@ -46,13 +46,6 @@ export default function menuDePartidasPage() {
 
 
 
-    function updateCorreos() {
-        const copia = [];
-        correos.forEach((c) => copia.push(c));
-        copia.push(correo);
-        setCorreos(copia);
-    }
-
 
 
 
