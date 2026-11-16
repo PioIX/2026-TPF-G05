@@ -1,0 +1,14 @@
+scar el chat en partida porque no tiene nada q ver.
+cambiar ls titulos de chats y todo eso de un proyecto anterior al actual
+rederizar los barcos bien en las replays (se hace en cell)
+no toques nada de la logica del juego y solamente modifica las clases para aplicar al css
+las guias de la grilla de partida ignorala, solamente quiero que estilices la tabla donde van los barcos.
+haceme los estilos como si fuera de la segunda guerra mundial
+quiero que pongas una lista de los barcos que tiene el jugador.
+al momento de poner un barco, se oscuresca el barco que estaba disposible. Estos barcos van a estar mostrados al lado de la grilla, necesito que sea un mostrador de barcos en forma de cuadrados que forman una linea.
+no quiero ningun comentario en el codigo
+quiero que cualquier funcion nueva lo hagas con la calidad o el estilo del codigo que viene en todo el proyecto
+necesito que hagas un boton de atacar
+necesito que hagas un boton de rendirse que haga al enemigo ganar y decirle la razon que pueden ser 2 (ganar por barcos hundidos, ganar por rendicion.)
+
+
