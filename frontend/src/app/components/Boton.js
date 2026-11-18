@@ -1,10 +1,5 @@
-
-
-export default function Boton({funcion, text, deshabilitar}) {
-
-
+export default function Boton({funcion, text, deshabilitar, clase}) {
     return(
-        <button onClick={funcion} disabled={deshabilitar}>{text}</button>
-
+        <button onClick={funcion} disabled={deshabilitar} className={clase ? "boton " + clase : "boton"}>{text}</button>
     );
 }

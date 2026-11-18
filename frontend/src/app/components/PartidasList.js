@@ -1,41 +1,25 @@
-
 import PartidaItem from "./PartidaItem"
-
-
-export default function PartidasList({partidas, id_jugador}) {
-
-
+export default function PartidasList({partidas, id_jugador, correoJugador}) {
     let items = []
-    
     for (let i = 0; i < partidas.length; i++) {
         const element = partidas[i];
-        
-
         items.push(
-
-            <PartidaItem key={i} 
+            <PartidaItem key={i}
             nombre={element.nombre}
             id_partida={element.id_partida}
             id_jugador={id_jugador}
             id_ganador={element.id_ganador}
-            
-            
-             
+            correoJugador={correoJugador}
             ></PartidaItem>
         );
     }
-
     console.log(items)
-
-
-
     return(
-        <>
-            {partidas.length!=0? 
-            items : 
-            <p>No hay partidas</p>
+        <div className="listaPartidas">
+            {partidas.length!=0?
+            items :
+            <p className="sinPartidas">No hay partidas</p>
             }
-        </>
-        
+        </div>
     );
 }
