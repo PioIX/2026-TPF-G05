@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Input from "./components/Input"
 import Boton from './components/Boton';
 import { useRouter } from "next/navigation";
+const ipBack="192.168.56.1"
 export default function Home() {
     const [correo, setCorreo] = useState("");
     const [usuario, setUsuario] = useState("");
@@ -10,7 +11,7 @@ export default function Home() {
     const [mostrarRegistro, setMostrarRegistro] = useState(false);
     const router = useRouter();
     function logear() {
-        fetch(`http://localhost:4000/login?correo=${correo}&contra=${contra}`)
+        fetch(`http://${ipBack}:4000/login?correo=${correo}&contra=${contra}`)
         .then(response => response.json())
         .then(data => {
             if(data.ok){
@@ -30,7 +31,7 @@ export default function Home() {
             correo: correo,
             contra: contra,
         }
-        fetch('http://localhost:4000/registrar', {
+        fetch(`http://${ipBack}:4000/registrar`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

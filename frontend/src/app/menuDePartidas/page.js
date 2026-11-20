@@ -7,6 +7,8 @@ import Input from "../components/Input"
 import Boton from '../components/Boton';
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
+const ipBack="192.168.56.1"
+
 export default function menuDePartidasPage() {
     const searchParams = useSearchParams();
     const id_jugador = searchParams.get("id_jugador")
@@ -17,7 +19,7 @@ export default function menuDePartidasPage() {
     const [nombre, setNombre] = useState("");
     const [correo, setCorreo] = useState("");
     useEffect(() => {
-        fetch(`http://localhost:4000/partidas?id_jugador=${id_jugador}`)
+        fetch(`http://${ipBack}:4000/partidas?id_jugador=${id_jugador}`)
             .then(response => response.json())
             .then(data =>{
                 setPartidas(data)
@@ -29,7 +31,7 @@ export default function menuDePartidasPage() {
             nombre: nombre,
             correos: [correoJugador, correo]
         }
-        fetch('http://localhost:4000/crearPartida', {
+        fetch(`http://${ipBack}:4000/crearPartida`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
