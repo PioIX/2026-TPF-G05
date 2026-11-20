@@ -33,7 +33,7 @@ export default function ChatPageInterno() {
     const [razon, setRazon] = useState("")
     const [posicionAtaque, setPosicionAtaque]= useState(undefined)
     const [ataqueRival, setAtaqueRival]= useState(undefined)
-    const [posicion, setPosicion] = useState(undefined)
+    const [casillaAtacada, setCasillaAtacada] = useState(undefined)
     const [tablero, setTablero]= useState(
         [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -62,13 +62,21 @@ export default function ChatPageInterno() {
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
         ]
     )
+
+
+
+
     useEffect(() => {
         fetch(`http://localhost:4000/traerBarcos?id_partida=${id_partida}&id_jugador=${id_jugador}`)
         .then(response => response.json())
         .then(data =>{
+
             const copia = tablero.map((fila) => [...fila]);
+
             for (const barco of data) {
+
                 const posiciones =dimensionar(pasarANum(barco.posicion), barco.longitud, barco.orientacion)
+
                 for (const posicion of posiciones) {
                     copia[posicion.fila][posicion.columna] = 1;
                 }
@@ -77,11 +85,16 @@ export default function ChatPageInterno() {
             setBarcos(data)
         })
     }, []);
+
     useEffect(() => {
         if(socket){
             socket.emit("joinRoom", { room: id_partida })
+
+
             socket.on("listo", (data) => {
+
                 if (data.id != id_jugador) {
+
                     if (data.idA<id_jugador || data.idB<id_jugador) {
                         setTurno(false)
                     } else {
@@ -89,15 +102,23 @@ export default function ChatPageInterno() {
                     }
                 }
             });
+
+
             socket.on("terminar", (data) => {
+
                 if (data.id != id_jugador) {
+
                     if (data.razon == "rendicion") {
                         setRazon("rendicion")
                     } else {
                         setRazon("barcos")
                     }
+
                     setGanaste(true)
                     setTerminar(true)
+
+
+
                     fetch("http://localhost:4000/terminarPartida", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -108,49 +129,74 @@ export default function ChatPageInterno() {
                     })
                 }
             });
+
+
             socket.on("ataqueRta", (data) => {
                 if (data.id!=id_jugador) {
                     setAtaqueRival(data)
-                    console.log("rta:", data.acierto)
                 }
             })
+
             socket.on("ataque", (data) => {
                 if (data.id != id_jugador) {
-                    setPosicion(data.posicion)
-                    console.log("ataque recibido")
+                    setCasillaAtacada(data.posicion)
+
                 }
             })
         }
     }, [socket]);
+
+
+
     useEffect(()=>{
+
         if (ataqueRival) {
+
+            let copia = tableroAtaques.map((fila) => [...fila]);   
+
             if(ataqueRival.acierto){
-                let copia = tableroAtaques.map((fila) => [...fila]);
+
                 copia[ataqueRival.posicion.fila][ataqueRival.posicion.columna]=1
                 setTableroAtaques(copia)
+
+                if (ataqueRival.hundido) {
+                    alert("hundido")
+
+                }
             }else{
-                let copia = tableroAtaques.map((fila) => [...fila]);
+
                 copia[ataqueRival.posicion.fila][ataqueRival.posicion.columna]=2
                 setTableroAtaques(copia)
                 setTurno(false)
             }
         }
     }, [ataqueRival])
+
     useEffect(()=>{
-        if (posicion) {
+        if (casillaAtacada) {
             let copia = tablero.map((fila) => [...fila]);
-            console.log(copia)
-            if (copia[posicion.fila][posicion.columna]== 1){
-                socket.emit("ataqueRta", { id: id_jugador, acierto: true, posicion: posicion})
-                copia[posicion.fila][posicion.columna]=2
-                console.log("acerto :(")
+
+            let hundido=true
+            if (copia[casillaAtacada.fila][casillaAtacada.columna]== 1){
+                copia[casillaAtacada.fila][casillaAtacada.columna]=2
+
+                for (const barco of barcos) {
+                    const posiciones=dimensionar(pasarANum(barco.posicion), barco.longitud, barco.orientacion)
+                    if (posiciones.some(posicionBarco => posicionBarco.columna == casillaAtacada.columna && posicionBarco.fila == casillaAtacada.fila)) {
+                        hundido=posiciones.every(posicionBarco => copia[posicionBarco.fila][posicionBarco.columna]!=1)
+                    }
+                }
+
+                socket.emit("ataqueRta", { id: id_jugador, acierto: true, posicion: casillaAtacada, hundido: hundido})
             }else{
-                socket.emit("ataqueRta", { id: id_jugador, acierto: false, posicion: posicion})
-                copia[posicion.fila][posicion.columna]=3
-                console.log("fallo :)")
+                socket.emit("ataqueRta", { id: id_jugador, acierto: false, posicion: casillaAtacada, hundido:false })
+
+                copia[casillaAtacada.fila][casillaAtacada.columna]=3
                 setTurno(true)
             }
+
             setTablero(copia)
+
             let quedanBarcos=false
             for (let y = 0; y < 10; y++) {
                 for (let x = 0; x < 10; x++) {
@@ -161,24 +207,27 @@ export default function ChatPageInterno() {
             }
             if (!quedanBarcos) {
                 socket.emit("terminar", { id: id_jugador })
-                console.log("NO QUEDAN BARCOS")
                 setRazon("barcos")
                 setTerminar(true)
                 setPreparado(false)
             }
         }
-    }, [posicion])
+    }, [casillaAtacada])
     useEffect(() => {
         if(barcos.length==5 && socket){
             setPreparado(true)
             socket.emit("listo", { id:id_jugador })
         }
     }, [barcos, socket]);
+
     useEffect(() => {
         if (final) {
             validarBarco()
         }
     }, [final]);
+
+
+
     function validarBarco() {
         if (!inicio || !final) {
             setInicio(undefined)
@@ -237,20 +286,12 @@ export default function ChatPageInterno() {
         if(tableroAtaques[posicionAtaque.fila][posicionAtaque.columna] == 0){
             socket.emit("ataque", { id:id_jugador, posicion: posicionAtaque })
             setPosicionAtaque(undefined)
-            console.log("ataque enviado")
         }else{
             alert("ya atacaste esa posicion")
         }
     }
-    function rendirse(){
-        socket.emit("terminar", { id: id_jugador, razon: "rendicion" })
-        setRazon("rendicion")
-        setTerminar(true)
-        console.log("rendicion enviada")
-    }
-    function volver(){
-        router.push(`/menuDePartidas?id_jugador=${id_jugador}&correoJugador=${correoJugador}`)
-    }
+
+
     function verificarSiExiste(longitud) {
         let existe=barcos.some(barco => barco.longitud == longitud)
         if (longitud==3) {
@@ -290,8 +331,12 @@ export default function ChatPageInterno() {
         let orientacion
         let posiciones = [];
         let longitud
+
         if (inicio.fila == final.fila) {
+
+
             orientacion="horizontal"
+
             if (final.columna > inicio.columna) {
                 longitud=final.columna - inicio.columna + 1
                 posiciones = dimensionar(inicio, longitud, "horizontal");
@@ -301,8 +346,13 @@ export default function ChatPageInterno() {
                 posiciones = dimensionar(final, longitud, "horizontal");
                 coordenadas=pasarALetra(final)
             }
+
+
         } else if (inicio.columna == final.columna) {
+
+
             orientacion="vertical"
+            
             if (final.fila > inicio.fila) {
                 longitud=final.fila - inicio.fila + 1
                 posiciones = dimensionar(inicio, longitud, "vertical");
@@ -328,7 +378,6 @@ export default function ChatPageInterno() {
                 posiciones.push({ fila: puntoA.fila + i, columna: puntoA.columna });
             }
         }
-        console.log("posiciones del bacro:", posiciones)
         return posiciones;
     }
     function pasarANum(posicion) {
@@ -352,6 +401,9 @@ export default function ChatPageInterno() {
         body: JSON.stringify(barco)
         })
     }
+    
+    
+    
     function renderizarBarcos() {
         let items = []
         for (const barco of flota) {
@@ -393,12 +445,25 @@ export default function ChatPageInterno() {
         }
         return impactos
     }
+
+
+    function rendirse(){
+        socket.emit("terminar", { id: id_jugador, razon: "rendicion" })
+        setRazon("rendicion")
+        setTerminar(true)
+    }
+    function volver(){
+        router.push(`/menuDePartidas?id_jugador=${id_jugador}&correoJugador=${correoJugador}`)
+    }
+    
     return (
         <main className="pantallaPartida">
             <header className="barraSuperior">
                 <p className="marcaBarra">Batalla Naval</p>
                 <Boton funcion={volver} text="Volver" clase="botonVolver"></Boton>
             </header>
+
+
             <Popup
                 open={terminar && !popupCerrado}
                 onClose={() => setPopupCerrado(true)}
@@ -412,17 +477,24 @@ export default function ChatPageInterno() {
                     <Boton funcion={volver} text="Volver" clase="botonAzul botonAncho"></Boton>
                 </div>
             </Popup>
+
+
+
+
             <div className="contenidoPartida">
                 <div className="encabezadoPartida">
                     <h2 className="tituloPartida">Sala {id_partida}</h2>
                     <div className="mandoDerecha">
                         <span className="chipSala">CAPITÁN {id_jugador}</span>
+
                         {!terminar &&
                             <Boton funcion={rendirse} text="Rendirse" clase="botonRojo"></Boton>
                         }
+
                     </div>
                 </div>
-                {!preparado && !terminar && (
+
+                {!preparado && !terminar && ( 
                     <div className="zonaBatalla">
                         <section className="zonaTabla">
                             <h2 className="tituloZona">Pone tus barcos</h2>
@@ -445,6 +517,9 @@ export default function ChatPageInterno() {
                         </aside>
                     </div>
                 )}
+
+
+
                 {preparado && turno && !terminar && (
                     <div className="zonaBatalla">
                         <section className="zonaTabla">
@@ -471,6 +546,9 @@ export default function ChatPageInterno() {
                         </aside>
                     </div>
                 )}
+
+
+
                 {preparado && !turno && !terminar && (
                     <div className="zonaBatalla">
                         <section className="zonaTabla">
@@ -507,6 +585,7 @@ export default function ChatPageInterno() {
                                     deshabilitar={true}
                                 ></TablaPropio>
                             </div>
+                  
                         </section>
                         <aside className="panelOrdenes">
                             <h3>{ganaste ? "Victoria" : "Derrota"}</h3>
