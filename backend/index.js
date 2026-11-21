@@ -42,9 +42,11 @@ io.on("connection", (socket) => {
   const req = socket.request;
 
   socket.on("joinRoom", (data) => {
+
     if (req.session.room != undefined && req.session.room.length > 0) {
       socket.leave(req.session.room);
     }
+    console.log("joinRoom",data.romm)
     req.session.room = data.room;
     socket.join(req.session.room);
 

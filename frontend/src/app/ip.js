@@ -1,1 +1,2 @@
-export const ipBack = ""
+export const ipBack=""
+export const ip2=""
