@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Input from "./components/Input"
 import Boton from './components/Boton';
 import { useRouter } from "next/navigation";
-const ipBack="192.168.56.1"
+import { ipBack } from "./ip"
 export default function Home() {
     const [correo, setCorreo] = useState("");
     const [usuario, setUsuario] = useState("");

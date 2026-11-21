@@ -7,7 +7,7 @@ const { realizarQuery } = require('./modulos/mysql');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const ipBack="192.168.56.1"
+const ipBack=""
 const ip2=""
 
 app.use(express.json());

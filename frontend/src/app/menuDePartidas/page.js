@@ -7,7 +7,8 @@ import Input from "../components/Input"
 import Boton from '../components/Boton';
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
-const ipBack="192.168.56.1"
+import { ipBack } from "../ip"
+
 
 export default function menuDePartidasPage() {
     const searchParams = useSearchParams();

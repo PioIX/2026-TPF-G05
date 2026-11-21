@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-const ipBack="192.168.56.1"
+import { ipBack } from "../ip"
+
 
 const useSocket = (options = { withCredentials: false }, serverUrl = `http://${ipBack}:4000/`) => { //ACÁ PONER LA IP DEL BACK
   const [socket, setSocket] = useState(null);

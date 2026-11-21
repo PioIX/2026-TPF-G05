@@ -9,7 +9,7 @@ import TablaDeAtaque from "../components/TablaDeAtaque";
 import Popup from "reactjs-popup";
 import "reactjs-popup/dist/index.css";
 
-const ipBack="192.168.56.1"
+import { ipBack } from "../ip"
 
 
 const flota = [
@@ -123,7 +123,7 @@ export default function ChatPageInterno() {
 
 
 
-                    fetch("http://${ipBack}:4000/terminarPartida", {
+                    fetch(`http://${ipBack}:4000/terminarPartida`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -397,7 +397,7 @@ export default function ChatPageInterno() {
         return `${columna}${posicion.fila+1}`
     }
     function subirBarco(barco) {
-        fetch('http://${ipBack}:4000/subirBarco', {
+        fetch(`http://${ipBack}:4000/subirBarco`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
